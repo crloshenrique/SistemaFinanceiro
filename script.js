@@ -18,6 +18,7 @@ let ultimaOpcaoSelecionada = null;
 // --- NAVEGAÇÃO E INTERFACE ---
 
 function navegar(pagina) {
+     atualizarMenuAtivo(pagina);
     navegacaoAtualId++;
     fecharTodosSubmenus();
     const mainContent = document.getElementById('main-content');
@@ -257,14 +258,25 @@ function fecharTodosSubmenus() {
     });
 }
 
-function atualizarMenuAtivo() {
+function atualizarMenuAtivo(pagina) {
     const links = document.querySelectorAll('.menu-item');
-    links.forEach(link => {
-        link.addEventListener('click', function() {
-            links.forEach(l => l.classList.remove('active'));
-            this.classList.add('active');
+    links.forEach(l => l.classList.remove('active'));
+
+    const paginasControle = ['adicionar', 'editar', 'apagar'];
+
+    if (paginasControle.includes(pagina)) {
+        // Marca o Controle como ativo
+        const controle = document.querySelector('[onclick*="toggleSubmenu"]');
+        if (controle) controle.classList.add('active');
+    } else {
+        // Marca o item normal correspondente
+        links.forEach(link => {
+            const onclick = link.getAttribute('onclick') || '';
+            if (onclick.includes(`'${pagina}'`)) {
+                link.classList.add('active');
+            }
         });
-    });
+    }
 }
 
 // Inicializadores
