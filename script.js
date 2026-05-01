@@ -2516,11 +2516,8 @@ function renderizarHome() {
     mainContent.innerHTML = `
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: calc(100vh - 100px); text-align: center;">
             
-            <!-- Foto de Perfil -->
-            <div class="header-profile" style="margin-bottom: 25px;">
-                <div class="profile-circle" style="width: 110px; height: 110px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: transparent; border: 3px solid #6366f1; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.2);">
-                    <img src="imagens/menu/perfil.png" class="profile-img" alt="Perfil" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
+            <div style="margin-bottom: 25px;">
+                <img src="imagens/logohome.png" alt="Logo" style="width: 110px; height: 110px; object-fit: contain;">
             </div>
 
             <h1 style="color: #6366f1; font-size: 2.5rem; font-weight: 800; margin-bottom: 5px;">
