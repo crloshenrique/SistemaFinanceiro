@@ -147,7 +147,7 @@ async function carregarListaEdicao() {
                             <td>R$${item.valor.toFixed(2).replace('.', ',')}</td>
                             <td>${item.quantidade}</td>
                             <td>${item.origem.charAt(0).toUpperCase() + item.origem.slice(1)}</td>
-                            <td>${new Date(item.data).toLocaleDateString('pt-BR')}</td>
+                            <td>${new Date(item.data).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -450,7 +450,7 @@ async function carregarListaApagar() {
                             <td>R$${item.valor.toFixed(2).replace('.', ',')}</td>
                             <td>${item.quantidade}</td>
                             <td>${item.origem.charAt(0).toUpperCase() + item.origem.slice(1)}</td>
-                            <td>${new Date(item.data).toLocaleDateString('pt-BR')}</td>
+                            <td>${new Date(item.data).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
                             <td style="text-align: center; padding: 0 10px;">
                                 <img src="imagens/lixeira.png" 
                                      alt="Apagar" 
@@ -692,7 +692,7 @@ async function carregarListaEdicaoServico() {
                             <td>R$${item.gasto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                             <td>R$${item.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                             <td>${item.categoria}</td>
-                            <td>${new Date(item.data).toLocaleDateString('pt-BR')}</td>
+                            <td>${new Date(item.data).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -839,7 +839,7 @@ async function carregarListaApagarServico() {
                             <td>R$${item.gasto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                             <td>R$${item.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                             <td>${item.categoria}</td>
-                            <td>${new Date(item.data).toLocaleDateString('pt-BR')}</td>
+                            <td>${new Date(item.data).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
                             <td style="text-align: center; padding: 0 14px; width: 50px;">
                                 <img src="imagens/lixeira.png" 
                                      alt="Apagar" 
@@ -1069,11 +1069,12 @@ async function salvarConta() {
 
 async function carregarListaEdicaoContas() {
     const mainContent = document.getElementById('main-content');
-        mainContent.innerHTML = `
-            <div class="loader-container">
-                <div class="spinner"></div>
-            </div>
-        `;
+    mainContent.innerHTML = `
+        <div class="loader-container">
+            <div class="spinner"></div>
+        </div>
+    `;
+
     const { data: contas, error } = await _supabase
         .from('contas')
         .select(`
@@ -1088,47 +1089,48 @@ async function carregarListaEdicaoContas() {
     }
 
     mainContent.innerHTML = `
-        <div class="selection-container" style="background: transparent; padding: 0; min-width: 100%;">
+        <div class="selection-container" style="background: transparent; padding: 0; min-width: 100%; align-self: flex-start; margin-top: 40px;">
             <h2 class="selection-title-alinhado">Selecione a conta para editar</h2>
-            <div class="cards-grid">
-                ${contas.map(conta => {
-                    const valorRestante = conta.contas_parcelas
-                        .filter(p => p.status === false)
-                        .reduce((acc, p) => acc + p.valor, 0);
+            ${contas.length === 0
+                ? '<p style="color: #64748b; font-size: 15px; text-align: center; width: 100%;">Nenhuma conta encontrada.</p>'
+                : `<div class="cards-grid">
+                    ${contas.map(conta => {
+                        const valorRestante = conta.contas_parcelas
+                            .filter(p => p.status === false)
+                            .reduce((acc, p) => acc + p.valor, 0);
 
-                    const valorFormatado = valorRestante.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace(/\u00A0/g, '');
+                        const valorFormatado = valorRestante.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace(/\u00A0/g, '');
 
-const pagas = conta.contas_parcelas.filter(p => p.status === true).length;
-const total = conta.total_parcelas;
+                        const pagas = conta.contas_parcelas.filter(p => p.status === true).length;
+                        const total = conta.total_parcelas;
+                        const porcentagem = total > 0 ? (pagas / total) * 100 : 0;
 
-// Cálculo da porcentagem (evita divisão por zero se total for 0)
-const porcentagem = total > 0 ? (pagas / total) * 100 : 0;
+                        return `
+                            <div class="card-conta-edit" onclick="abrirEdicaoConta(${JSON.stringify(conta).replace(/"/g, '&quot;')})">
+                                <div class="card-header-credor">
+                                    <span class="nome-credor">${conta.credor}</span>
+                                    <div class="valor-total-restante">${valorFormatado}</div>
+                                </div>
+                                
+                                <div class="card-body">
+                                    <span class="label-card">Descrição</span>
+                                    <p class="desc-card">${conta.descricao}</p>
+                                </div>
 
-return `
-    <div class="card-conta-edit" onclick="abrirEdicaoConta(${JSON.stringify(conta).replace(/"/g, '&quot;')})">
-        <div class="card-header-credor">
-            <span class="nome-credor">${conta.credor}</span>
-            <div class="valor-total-restante">${valorFormatado}</div>
-        </div>
-        
-        <div class="card-body">
-            <span class="label-card">Descrição</span>
-            <p class="desc-card">${conta.descricao}</p>
-        </div>
-
-        <div class="card-footer-parcelas">
-            <span class="label-card">Parcelas</span>
-            <div class="progresso-container">
-                <div class="progresso-barra" style="width: ${porcentagem}%"></div>
-            </div>
-            <div class="progresso-texto">
-                ${pagas}/${total}
-            </div>
-        </div>
-    </div>
-`;
-                }).join('')}
-            </div>
+                                <div class="card-footer-parcelas">
+                                    <span class="label-card">Parcelas</span>
+                                    <div class="progresso-container">
+                                        <div class="progresso-barra" style="width: ${porcentagem}%"></div>
+                                    </div>
+                                    <div class="progresso-texto">
+                                        ${pagas}/${total}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>`
+            }
         </div>
     `;
 }
