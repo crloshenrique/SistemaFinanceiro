@@ -234,7 +234,7 @@ function montarFormularioEntrega() {
                     </div>
                 </div>
 
-                <button type="button" class="btn-salvar" onclick="salvarEntrega()">Salvar</button>
+<button type="button" id="btn-salvar-entrega" class="btn-salvar" onclick="salvarEntrega()">Salvar</button>
             </form>
         </div>
     `;
@@ -289,6 +289,10 @@ function mostrarNotificacao(mensagem, tipo) {
 }
 
 async function salvarEntrega() {
+    const btn = document.getElementById('btn-salvar-entrega');
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
+
     const qtd = document.getElementById('qtd-entrega').value.trim();
     const valorRaw = document.getElementById('valor-entrega').value.trim();
     const dataRef = document.getElementById('data-entrega').value;
@@ -297,15 +301,17 @@ async function salvarEntrega() {
     // 1. Validação de campos vazios
     if (!qtd || !valorRaw || !dataRef || !origem || origem === "Selecione") {
         mostrarNotificacao("Preencha todos os campos!", "erro");
+        btn.disabled = false;
+        btn.textContent = 'Salvar';
         return;
     }
 
     // 2. Validação Rigorosa de Números (Regex)
-    // Aceita apenas números, ponto ou vírgula. Bloqueia letras e espaços.
     const regexNumero = /^\d+([,.]\d+)?$/;
-
     if (!regexNumero.test(valorRaw)) {
         mostrarNotificacao("Insira valores válidos!", "erro");
+        btn.disabled = false;
+        btn.textContent = 'Salvar';
         return;
     }
 
@@ -324,14 +330,17 @@ async function salvarEntrega() {
     if (error) {
         mostrarNotificacao("Erro ao conectar com o banco!", "erro");
         console.error(error);
+        btn.disabled = false;
+        btn.textContent = 'Salvar';
     } else {
-        mostrarNotificacao("Entrega adicionada!", "sucesso");
-        
-        setTimeout(() => {
-            const form = document.getElementById('form-entrega');
-            if (form) form.reset();
-        }, 500);
-    }
+    mostrarNotificacao("Entrega adicionada!", "sucesso");
+    setTimeout(() => {
+        const form = document.getElementById('form-entrega');
+        if (form) form.reset();
+        btn.disabled = false;
+        btn.textContent = 'Salvar';
+    }, 500);
+}
 }
 
 // Estilos para as notificações (Toast) - ALINHAMENTO REAL COM O CONTEÚDO
@@ -555,7 +564,8 @@ function montarFormularioServico() {
                     </div>
                 </div>
 
-                <div class="input-group" style="margin-bottom: 0;"> <label style="color: white; opacity: 0.8; margin-bottom: 0;">Categoria</label>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label style="color: white; opacity: 0.8; margin-bottom: 0;">Categoria</label>
                     
                     <div style="background-color: #6c7b91; padding: 15px; border-radius: 8px; display: flex; flex-wrap: wrap; gap: 10px;">
                         ${CATEGORIAS_SERVICOS.map(cat => `
@@ -569,7 +579,7 @@ function montarFormularioServico() {
                     </div>
                 </div>
 
-                <button type="button" class="btn-salvar" onclick="salvarServico()" style="margin-top: 20px;">Salvar</button>
+                <button type="button" id="btn-salvar-servico" class="btn-salvar" onclick="salvarServico()" style="margin-top: 20px;">Salvar</button>
             </form>
         </div>
 
@@ -589,6 +599,10 @@ function montarFormularioServico() {
 }
 
 async function salvarServico() {
+    const btn = document.getElementById('btn-salvar-servico');
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
+
     const descricao = document.getElementById('descricao-servico').value.trim();
     const gastoRaw = document.getElementById('gasto-servico').value.trim();
     const valorRaw = document.getElementById('valor-servico').value.trim();
@@ -597,15 +611,16 @@ async function salvarServico() {
 
     if (!descricao || !gastoRaw || !valorRaw || !dataRef || !categoriaSelecionada) {
         mostrarNotificacao("Preencha todos os campos!", "erro");
+        btn.disabled = false;
+        btn.textContent = 'Salvar';
         return;
     }
 
-    // REGEX: Aceita apenas números que podem ter UMA vírgula OU UM ponto como separador.
-    // Não permite espaços, letras ou caracteres especiais.
     const regexNumero = /^\d+([,.]\d+)?$/;
-
     if (!regexNumero.test(gastoRaw) || !regexNumero.test(valorRaw)) {
         mostrarNotificacao("Insira valores válidos!", "erro");
+        btn.disabled = false;
+        btn.textContent = 'Salvar';
         return;
     }
 
@@ -623,12 +638,16 @@ async function salvarServico() {
 
     if (error) {
         mostrarNotificacao("Erro ao conectar com o banco!", "erro");
+        btn.disabled = false;
+        btn.textContent = 'Salvar';
     } else {
         mostrarNotificacao("Serviço adicionado!", "sucesso");
         setTimeout(() => {
             const form = document.getElementById('form-servico');
             if (form) form.reset();
             document.querySelectorAll('input[name="categoria-servico"]').forEach(r => r.checked = false);
+            btn.disabled = false;
+            btn.textContent = 'Salvar';
         }, 1000);
     }
 }
@@ -898,23 +917,23 @@ function montarFormularioConta() {
                             <input type="text" id="parcelas-input" placeholder="Ex: 12" class="custom-input input-focus-indigo" maxlength="4">
                         </div>
                     </div>
-                    <button type="button" class="btn-salvar" onclick="gerarParcelas()">Prosseguir</button>
+                    <button type="button" id="btn-prosseguir-conta" class="btn-salvar" onclick="gerarParcelas()">Prosseguir</button>
                 </form>
             </div>
 
             <div id="container-parcelas-lista" class="selection-container lista-parcelas-contas" style="display: none;">
                 <h2 class="selection-title">Parcelas</h2>
                 
-                <div id="corpo-parcelas" class="scroll-vazado">
-                    </div>
+                <div id="corpo-parcelas" class="scroll-vazado"></div>
 
-                <button type="button" class="btn-salvar" style="width: 100%; margin-top: 15px;" onclick="salvarConta()">Adicionar</button>
+                <button type="button" id="btn-salvar-conta" class="btn-salvar" style="width: 100%; margin-top: 15px;" onclick="salvarConta()">Salvar</button>
             </div>
         </div>
     `;
 }
 
 function gerarParcelas() {
+    const btn = document.getElementById('btn-prosseguir-conta');
     const descricao = document.getElementById('descricao-conta').value.trim();
     const credor = document.getElementById('credor-conta').value.trim();
     const inputParcelas = document.getElementById('parcelas-input');
@@ -922,16 +941,13 @@ function gerarParcelas() {
     const corpo = document.getElementById('corpo-parcelas');
     
     const valorParcelaRaw = inputParcelas.value.trim();
-    // REGEX para números inteiros apenas
     const regexInteiro = /^\d+$/;
 
-    // Primeiro valida se está vazio
     if (!descricao || !credor || !valorParcelaRaw) {
         mostrarNotificacao("Preencha todos os campos!", "erro");
         return;
     }
 
-    // Depois valida se é um número válido
     if (!regexInteiro.test(valorParcelaRaw) || parseInt(valorParcelaRaw) <= 0) {
         mostrarNotificacao("Insira valores válidos!", "erro");
         return;
@@ -956,6 +972,10 @@ function gerarParcelas() {
 }
 
 async function salvarConta() {
+    const btn = document.getElementById('btn-salvar-conta');
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
+
     const descricao = document.getElementById('descricao-conta').value.trim();
     const credor = document.getElementById('credor-conta').value.trim();
     const totalParcelas = document.getElementById('parcelas-input').value.trim();
@@ -963,6 +983,8 @@ async function salvarConta() {
     
     if (!descricao || !credor || !totalParcelas) {
         mostrarNotificacao("Preencha todos os campos!", "erro");
+        btn.disabled = false;
+        btn.textContent = 'Salvar';
         return;
     }
 
@@ -976,11 +998,15 @@ async function salvarConta() {
 
         if (!valorRaw || !dataVencimento) {
             mostrarNotificacao("Preencha todos os campos!", "erro");
+            btn.disabled = false;
+            btn.textContent = 'Salvar';
             return;
         }
 
         if (!regexNumero.test(valorRaw)) {
             mostrarNotificacao("Insira valores válidos!", "erro");
+            btn.disabled = false;
+            btn.textContent = 'Salvar';
             return;
         }
 
@@ -1003,6 +1029,8 @@ async function salvarConta() {
 
     if (erroConta) {
         mostrarNotificacao("Erro ao conectar com o banco!", "erro");
+        btn.disabled = false;
+        btn.textContent = 'Salvar';
         return;
     }
 
@@ -1015,29 +1043,26 @@ async function salvarConta() {
 
     if (erroParcelas) {
         mostrarNotificacao("Erro ao salvar parcelas!", "erro");
+        btn.disabled = false;
+        btn.textContent = 'Salvar';
     } else {
         mostrarNotificacao("Conta adicionada!", "sucesso");
 
-        // --- RETORNO AO ESTÁGIO INICIAL ---
         setTimeout(() => {
-            // 1. Limpa o formulário principal
             const form = document.getElementById('form-conta');
             if (form) form.reset();
 
-            // 2. Esconde a tabela de parcelas
             const containerParcelas = document.getElementById('container-parcelas-lista');
-            if (containerParcelas) {
-                containerParcelas.style.display = 'none';
-            }
+            if (containerParcelas) containerParcelas.style.display = 'none';
 
-            // 3. Limpa o HTML das parcelas geradas anteriormente
             const corpo = document.getElementById('corpo-parcelas');
             if (corpo) corpo.innerHTML = '';
 
-            // 4. (Opcional) Reajusta o alinhamento se necessário
             const flexContainer = document.querySelector('.container-flex-contas');
             if (flexContainer) flexContainer.style.justifyContent = 'flex-start';
-            
+
+            btn.disabled = false;
+            btn.textContent = 'Salvar';
         }, 1000);
     }
 }
