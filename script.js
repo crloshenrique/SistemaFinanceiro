@@ -2275,7 +2275,7 @@ domingosUltimasSemanas.forEach(dom => {
                     <div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; gap: 10px; padding: 0;">
                         <div class="layout-entregas" style="margin: 0; width: auto; padding: 0;">${htmlCalendario}</div>
                         <div class="card-entregas-total" style="margin: 0; height: 106px; display: flex; flex-direction: column;">
-                            <div class="card-entregas-total-header" style="flex: 0.54; display: flex; align-items: center; justify-content: center; font-size: 14px;">Total</div>
+                            <div class="card-entregas-total-header" style="flex: 0.54; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">Total</div>
                             <div class="card-entregas-total-quant" id="soma-semanal-valor" style="flex: 1.46; display: flex; align-items: center; justify-content: center; margin: 0; font-size: 1.6rem;">0</div>
                         </div>
                     </div>
