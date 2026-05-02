@@ -2314,7 +2314,7 @@ domingosUltimasSemanas.forEach(dom => {
                     <div style="margin-bottom: 20px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <div style="width: 4px; height: 20px; background-color: #6366f1; border-radius: 2px;"></div>
-                            <h3 style="font-size: 16px; font-weight: 600; color: #475569; margin: 0;">Ganhos totais</h3>
+                            <h3 style="font-size: 16px; font-weight: 600; color: #475569; margin: 0;">${hoje.toLocaleString('pt-BR', { month: 'long' }).replace(/^\w/, c => c.toUpperCase())}</h3>
                         </div>
                     </div>
                     ${circuloGanhos}
