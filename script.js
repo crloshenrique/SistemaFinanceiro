@@ -1361,7 +1361,7 @@ function renderizarEntregas() {
     // Mês e Ano selecionados nos filtros
     const mesSelecionado = filtroMes ? parseInt(filtroMes.value) : mHoje;
     const anoSelecionado = filtroAno ? parseInt(filtroAno.value) : aHoje;
-    const origemAtual = filtroOrigem ? filtroOrigem.value : "Açaiteria";
+    const origemAtual = filtroOrigem ? filtroOrigem.value : "Todos";
 
     const mesesAbrev = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
     const mesesCompletos = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
