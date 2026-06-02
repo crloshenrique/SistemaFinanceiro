@@ -1,7 +1,6 @@
 const SUPABASE_URL = 'https://mauuoodifakjeqkwjwkw.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hdXVvb2RpZmFramVxa3dqd2t3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NDExNTksImV4cCI6MjA5MjAxNzE1OX0.CRI33uQWhN85DQSvXg3gLgdIEQg4NZV0sJSyd1fPEhA';
 const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
 let navegacaoAtualId = 0;
 //Adicionar, editar ou remover categorias do serviço:
 // Lista de categorias para serviços - Adicione novas aqui facilmente
@@ -2134,28 +2133,11 @@ async function renderizarDashboard(dataInicioForcada = null) {
         referenciaCalendario = new Date(dataInicioForcada);
     }
 
-const domingo = new Date(referenciaCalendario);
+    const domingo = new Date(referenciaCalendario);
     domingo.setHours(0, 0, 0, 0);
     const diaSemana = referenciaCalendario.getDay(); // 0=Dom, 1=Seg...
     const diasAtéSegunda = (diaSemana === 0 ? 6 : diaSemana - 1); // Dom vira 6, Seg vira 0, etc.
     domingo.setDate(referenciaCalendario.getDate() - diasAtéSegunda);
-
-    // --- BUSCA DO STATUS DE PAGAMENTO DA SEMANA ---
-    const domingoISO = domingo.toISOString().split('T')[0];
-    let semanaEstaPaga = false;
-    try {
-        const { data: dadosPagamento } = await _supabase
-            .from('pagamentos_semanais')
-            .select('pago')
-            .eq('semana_inicio', domingoISO)
-            .maybeSingle();
-        
-        if (dadosPagamento) {
-            semanaEstaPaga = dadosPagamento.pago;
-        }
-    } catch (e) {
-        console.error("Erro ao buscar status de pagamento inicial:", e);
-    }
 
     const mesesAbrev = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
     const diasSemana = ["SEG", "TER", "QUA", "QUI", "SEX", "SÁB", "DOM"];
@@ -2292,28 +2274,10 @@ domingosUltimasSemanas.forEach(dom => {
                     </div>
                     <div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; gap: 10px; padding: 0;">
                         <div class="layout-entregas" style="margin: 0; width: auto; padding: 0;">${htmlCalendario}</div>
-<div class="card-entregas-total" style="margin: 0; height: 106px; perspective: 1000px; cursor: pointer; background: transparent; border: none; padding: 0;" onclick="flipCardTotal(this)">
-    <div id="card-total-inner" style="position: relative; width: 100%; height: 100%; transition: transform 0.90s ease; transform-style: preserve-3d;">
-        
-        <div class="card-entregas-total" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; margin: 0; display: flex; flex-direction: column; backface-visibility: hidden; -webkit-backface-visibility: hidden;">
-            <div class="card-entregas-total-header" style="flex: 0.54; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">Total</div>
-            <div class="card-entregas-total-quant" id="soma-semanal-valor" style="flex: 1.46; display: flex; align-items: center; justify-content: center; margin: 0; font-size: 1.6rem;">0</div>
-        </div>
-
-<div class="card-entregas-total" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; margin: 0; display: flex; flex-direction: column; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(180deg);">
-<div class="card-entregas-total-header" style="flex: 0.54; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">Status</div>
-            <div class="card-entregas-total-quant" style="flex: 1.46; display: flex; align-items: center; justify-content: center; margin: 0;">
-                
-<input type="checkbox" 
-       id="status-pagamento-checkbox"
-       ${semanaEstaPaga ? 'checked' : ''}
-       onclick="event.stopPropagation()"
-       onchange="event.stopPropagation(); salvarStatusPagamento(this.checked, '${domingoISO}')"
-       style="width: 20px; height: 20px; cursor: pointer; accent-color: #6366f1; border: 1px solid #d1d5db; border-radius: 4px; transition: all 0.2s ease-in-out;">
-       </div>
-        </div>
-    </div>
-</div>
+                        <div class="card-entregas-total" style="margin: 0; height: 106px; display: flex; flex-direction: column;">
+                            <div class="card-entregas-total-header" style="flex: 0.54; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">Total</div>
+                            <div class="card-entregas-total-quant" id="soma-semanal-valor" style="flex: 1.46; display: flex; align-items: center; justify-content: center; margin: 0; font-size: 1.6rem;">0</div>
+                        </div>
                     </div>
                     <div style="margin-top: 32px; margin-bottom: 16px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
@@ -2356,7 +2320,8 @@ domingosUltimasSemanas.forEach(dom => {
                     <div style="margin-top: 25px;">
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 24px;">
                             <div style="width: 4px; height: 20px; background-color: #6366f1; border-radius: 2px;"></div>
-                            <h3 style="font-size: 16px; font-weight: 600; color: #475569; margin: 0;">Entregas de ${hoje.toLocaleString('pt-BR', { month: 'long' }).replace(/^\w/, c => c.toUpperCase())}</h3>                        </div>
+                            <h3 style="font-size: 16px; font-weight: 600; color: #475569; margin: 0;">Entregas de ${hoje.toLocaleString('pt-BR', { month: 'long' }).replace(/^\w/, c => c.toUpperCase())}</h3> 
+                        </div>
                         <div style="display: flex; flex-direction: row; gap: 12px; justify-content: flex-start; align-items: center;">
                             ${circulosOrigemDash}
                         </div>
@@ -2671,52 +2636,3 @@ function renderizarHome() {
 document.addEventListener('DOMContentLoaded', () => {
     navegar('home');
 });
-
-function flipCardTotal(wrapper) {
-    const inner = wrapper.querySelector('#card-total-inner');
-    const isFlipped = inner.style.transform === 'rotateY(180deg)';
-    inner.style.transform = isFlipped ? '' : 'rotateY(180deg)';
-    if (!isFlipped) {
-        setTimeout(() => {
-            document.addEventListener('click', function fecharCard(e) {
-                inner.style.transform = '';
-                document.removeEventListener('click', fecharCard);
-            });
-        }, 10);
-    }
-}
-
-async function salvarStatusPagamento(estaPago, dataSemana) {
-    try {
-        console.log(`Atualizando Supabase: semana_inicio = ${dataSemana}, pago = ${estaPago}`);
-
-        // 1. Tenta atualizar a linha existente
-        const { data, error } = await _supabase
-            .from('pagamentos_semanais') 
-            .update({ pago: estaPago })
-            .eq('semana_inicio', dataSemana)
-            .select();
-
-        if (error) throw error;
-
-        // 2. Se não encontrou nenhuma linha para atualizar, cria o registro do zero
-        if (!data || data.length === 0) {
-            console.log("Semana não encontrada na tabela. Fazendo insert...");
-            const { error: insertError } = await _supabase
-                .from('pagamentos_semanais')
-                .insert([{ semana_inicio: dataSemana, pago: estaPago }]);
-            
-            if (insertError) throw insertError;
-        }
-
-        console.log("Salvo com sucesso!");
-
-    } catch (err) {
-        console.error("Erro completo ao salvar no Supabase:", err);
-        alert("Erro ao salvar no banco de dados.");
-        
-        // Se der erro, desfaz o clique visualmente no checkbox
-        const checkbox = document.getElementById('status-pagamento-checkbox');
-        if (checkbox) checkbox.checked = !estaPago;
-    }
-}
