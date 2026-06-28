@@ -1577,7 +1577,7 @@ async function atualizarDadosCalendario(pularBuscaAnual = false) {
 }
 
 // Variável global para fácil alteração
-let metaDoMes = 2000;
+let metaDoMes = 3000;
 
 async function renderizarFinancas() {
     const mainContent = document.getElementById('main-content');
