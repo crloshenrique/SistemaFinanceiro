@@ -2616,8 +2616,7 @@ domingosUltimasSemanas.forEach(dom => {
                     <div id="menu-semanas" style="display: none; position: absolute; top: 74px; left: 50%; transform: translateX(-50%); background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 100; width: 150px; box-sizing: border-box;">
                         ${htmlItensMenu}
                     </div>
-                    <div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; gap: 10px; padding: 0;">
-                        <div class="layout-entregas" style="margin: 0; width: auto; padding: 0;">${htmlCalendario}</div>
+<div class="dashboard-semanal-row" style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; gap: 10px; padding: 0;">                        <div class="layout-entregas" style="margin: 0; width: auto; padding: 0;">${htmlCalendario}</div>
                         <div class="card-entregas-total card-total-semana" style="margin: 0; height: 106px; display: flex; flex-direction: column;">                            <div class="card-entregas-total-header" style="flex: 0.54; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">Total</div>
                             <div class="card-entregas-total-quant" id="soma-semanal-valor" style="flex: 1.46; display: flex; align-items: center; justify-content: center; margin: 0; font-size: 1.6rem;">0</div>
                         </div>
@@ -2665,8 +2664,7 @@ domingosUltimasSemanas.forEach(dom => {
                             <div style="width: 4px; height: 20px; background-color: #6366f1; border-radius: 2px;"></div>
                             <h3 style="font-size: 16px; font-weight: 600; color: #475569; margin: 0;">Entregas de ${hoje.toLocaleString('pt-BR', { month: 'long' }).replace(/^\w/, c => c.toUpperCase())}</h3> 
                         </div>
-                        <div style="display: flex; flex-direction: row; gap: 12px; justify-content: flex-start; align-items: center;">
-                            ${circulosOrigemDash}
+<div class="dashboard-origem-row" style="display: flex; flex-direction: row; gap: 12px; justify-content: flex-start; align-items: center;">                            ${circulosOrigemDash}
                         </div>
                     </div>
                 </div>
@@ -2918,7 +2916,7 @@ function renderizarHome() {
                 Sistema Financeiro
             </h1>
             <h3 class="home-subtitulo">
-                Navegue pelo menu lateral ou utilize os atalhos abaixo: Version 0.2
+                Navegue pelo menu lateral ou utilize os atalhos abaixo: Version 0.3
             </h3>
 
             <!-- Container dos Botões -->

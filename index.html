@@ -1229,14 +1229,22 @@
     }
 
     .dashboard-flex-row {
-        flex-direction: column-reverse !important;
+        flex-direction: column !important;
         gap: 30px !important;
         width: 100% !important;
+        max-width: 100vw !important;
     }
 
     .dashboard-col-semanal,
     .dashboard-col-mensal {
         width: 100% !important;
+        max-width: 100vw !important;
+    }
+
+    .dashboard-semanal-row,
+    .dashboard-origem-row {
+        max-width: 100% !important;
+        overflow-x: auto !important;
     }
 }
 
