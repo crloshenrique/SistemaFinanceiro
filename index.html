@@ -147,6 +147,114 @@
             margin: 0 !important;
         }
 
+        .valor-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .valor-input-wrapper .valor-prefix {
+            position: absolute;
+            left: 12px;
+            font-size: 14px;
+            color: #1e293b;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .valor-input-wrapper input.custom-input {
+            width: 100%;
+            padding-left: 30px;
+        }
+
+        .barra-semanal {
+            transition: height 0.2s ease, box-shadow 0.2s, filter 0.2s;
+            cursor: pointer;
+        }
+
+        .barra-semanal:hover {
+            box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+            filter: brightness(0.9);
+        }
+
+        .tooltip-calendario {
+            display: none;
+            position: absolute;
+            flex-direction: column;
+            justify-content: center;
+            gap: 6px;
+            width: 120px;
+            height: 120px;
+            box-sizing: border-box;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .tooltip-total {
+            font-size: 15px;
+            font-weight: 700;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .tooltip-divisor {
+            height: 1px;
+            background-color: #e2e8f0;
+            margin: 0 -8px;
+        }
+
+        .tooltip-linha-origem {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding-left: 5px;
+        }
+
+        .tooltip-bolinha {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .tooltip-valor-origem {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .dia-mes-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+            border-color: #6366f1;
+            cursor: pointer;
+        }
+
+        .card-total-semana {
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            cursor: pointer;
+        }
+
+        .card-total-semana:hover {
+            transform: translateX(4px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+            border-color: #6366f1;
+        }
+
+        .entregas-mensal-grid .card-entregas-total {
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            cursor: pointer;
+        }
+
+        .entregas-mensal-grid .card-entregas-total:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+            border-color: #6366f1;
+        }
+
         /* Estilo do Card de Lucro Individual */
         .card-entregas-total {
             background-color: white;

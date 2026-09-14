@@ -180,15 +180,17 @@ function abrirEdicaoEntrega(item) {
                 </div>
                 <div class="form-row">
                     <div class="input-group">
-                        <label>Valor (R$)</label>
-                        <input type="text" id="valor-entrega" value="${item.valor.toFixed(2).replace('.', ',')}" class="custom-input input-focus-indigo">
-                    </div>
+                        <label>Valor</label>
+                        <div class="valor-input-wrapper">
+                            <span class="valor-prefix">R$</span>
+                            <input type="text" id="valor-entrega" value="${item.valor.toFixed(2).replace('.', ',')}" class="custom-input input-focus-indigo">
+                        </div>                    </div>
                     <div class="input-group">
                         <label>Origem</label>
                         <select id="origem-entrega" class="custom-select input-focus-indigo">
-                            <option value="Açaiteria" ${item.origem === 'Açaiteria' ? 'selected' : ''}>Açaiteria</option>
-                            <option value="Aplicativos" ${item.origem === 'Aplicativos' ? 'selected' : ''}>Aplicativos</option>
-                            <option value="Unter Tech" ${item.origem === 'Unter Tech' ? 'selected' : ''}>Unter Tech</option>
+                            <option value="Agilize" ${item.origem === 'Agilize' ? 'selected' : ''}>Agilize</option>
+                            <option value="Aiqfome" ${item.origem === 'Aiqfome' ? 'selected' : ''}>Aiqfome</option>
+                            <option value="Bee" ${item.origem === 'Bee' ? 'selected' : ''}>Bee</option>
                         </select>
                     </div>
                 </div>
@@ -221,16 +223,18 @@ function montarFormularioEntrega() {
 
                 <div class="form-row">
                     <div class="input-group">
-                        <label>Valor (R$)</label>
-                        <input type="text" id="valor-entrega" placeholder="0,00" class="custom-input input-focus-indigo">
-                    </div>
+                        <label>Valor</label>
+                        <div class="valor-input-wrapper">
+                            <span class="valor-prefix">R$</span>
+                            <input type="text" id="valor-entrega" placeholder="0,00" class="custom-input input-focus-indigo">
+                        </div>                    </div>
                     <div class="input-group">
                         <label>Origem</label>
                         <select id="origem-entrega" class="custom-select input-focus-indigo">
                             <option selected disabled>Selecione</option>
-                            <option value="Açaiteria">Açaiteria</option>
-                            <option value="Aplicativos">Aplicativos</option>
-                            <option value="Unter Tech">Unter Tech</option>
+                            <option value="Agilize">Agilize</option>
+                            <option value="Aiqfome">Aiqfome</option>
+                            <option value="Bee">Bee</option>
                         </select>
                     </div>
                 </div>
@@ -382,6 +386,8 @@ style.textContent = `
 document.head.appendChild(style);
 
 async function atualizarEntrega() {
+    const meuIdNavegacao = navegacaoAtualId; // Marca em qual "navegação" esse clique aconteceu
+
     const id = document.getElementById('edit-id').value;
     const qtd = document.getElementById('qtd-entrega').value.trim();
     const valorRaw = document.getElementById('valor-entrega').value.trim();
@@ -420,6 +426,8 @@ async function atualizarEntrega() {
         mostrarNotificacao("Entrega atualizada!", "sucesso");
         
         setTimeout(() => {
+            // Só recarrega a lista de edição se o usuário ainda estiver nessa mesma navegação
+            if (meuIdNavegacao !== navegacaoAtualId) return;
             carregarListaEdicao();
         }, 800);
     }
@@ -487,6 +495,7 @@ async function confirmarEApagar(elemento, id) {
     // Segundo clique: se já estiver marcado para confirmar
     if (elemento.dataset.confirmar === "true") {
         clearTimeout(window.lixeiraTimer);
+        const meuIdNavegacao = navegacaoAtualId; // Marca em qual "navegação" esse clique aconteceu
         
         const { error } = await _supabase
             .from('entregas')
@@ -498,6 +507,7 @@ async function confirmarEApagar(elemento, id) {
             resetarLixeira(elemento);
         } else {
             mostrarNotificacao("Entrega apagada!", "sucesso");
+            if (meuIdNavegacao !== navegacaoAtualId) return;
             carregarListaApagar(); 
         }
     } else {
@@ -773,6 +783,8 @@ function abrirEdicaoServico(item) {
 }
 
 async function atualizarServico() {
+    const meuIdNavegacao = navegacaoAtualId; // Marca em qual "navegação" esse clique aconteceu
+
     const id = document.getElementById('edit-servico-id').value;
     const descricao = document.getElementById('descricao-servico').value.trim();
     const gastoRaw = document.getElementById('gasto-servico').value.trim();
@@ -807,7 +819,10 @@ async function atualizarServico() {
         mostrarNotificacao("Erro ao atualizar serviço!", "erro");
     } else {
         mostrarNotificacao("Serviço atualizado!", "sucesso");
-        setTimeout(() => carregarListaEdicaoServico(), 800);
+        setTimeout(() => {
+            if (meuIdNavegacao !== navegacaoAtualId) return;
+            carregarListaEdicaoServico();
+        }, 800);
     }
 }
 
@@ -871,6 +886,8 @@ async function confirmarEApagarServico(elemento, id) {
     if (elemento.dataset.confirmar === "true") {
         clearTimeout(window.lixeiraTimer);
         
+        const meuIdNavegacao = navegacaoAtualId; // Marca em qual "navegação" esse clique aconteceu
+
         const { error } = await _supabase
             .from('servicos')
             .delete()
@@ -881,6 +898,7 @@ async function confirmarEApagarServico(elemento, id) {
             resetarLixeira(elemento);
         } else {
             mostrarNotificacao("Serviço apagado!", "sucesso");
+            if (meuIdNavegacao !== navegacaoAtualId) return;
             carregarListaApagarServico(); 
         }
     } else {
@@ -1195,6 +1213,8 @@ async function abrirEdicaoConta(conta) {
 }
 
 async function atualizarContaExistente() {
+    const meuIdNavegacao = navegacaoAtualId; // Marca em qual "navegação" esse clique aconteceu
+
     const idConta = document.getElementById('edit-conta-id').value;
     const descricao = document.getElementById('descricao-conta').value.trim();
     const credor = document.getElementById('credor-conta').value.trim();
@@ -1240,6 +1260,7 @@ async function atualizarContaExistente() {
     mostrarNotificacao("Conta atualizada!", "sucesso");
 
     setTimeout(() => {
+        if (meuIdNavegacao !== navegacaoAtualId) return;
         navegar('editar'); // Recarrega a lista de cards
     }, 1500);
 }
@@ -1314,6 +1335,7 @@ async function confirmarEApagarConta(elemento, id) {
     // Segundo clique: Confirmação real
     if (elemento.dataset.confirmar === "true") {
         clearTimeout(window.lixeiraTimer);
+        const meuIdNavegacao = navegacaoAtualId; // Marca em qual "navegação" esse clique aconteceu
         
         const { error } = await _supabase
             .from('contas')
@@ -1325,6 +1347,7 @@ async function confirmarEApagarConta(elemento, id) {
             resetarLixeira(elemento);
         } else {
             mostrarNotificacao("Conta apagada!", "sucesso");
+            if (meuIdNavegacao !== navegacaoAtualId) return;
             carregarListaApagarContas(); 
         }
     } else {
@@ -1366,7 +1389,7 @@ function renderizarEntregas() {
     const mesesAbrev = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
     const mesesCompletos = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
     const diasSemana = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
-    const origens = ["Todos", "Açaiteria", "Aplicativos", "Unter Tech"];
+        const origens = ["Todos", "Agilize", "Aiqfome", "Bee"];
 
     // 1. HTML DOS FILTROS
     let htmlFiltros = `
@@ -1493,10 +1516,9 @@ async function atualizarDadosCalendario(pularBuscaAnual = false) {
         });
     }
 
-    // 2. BUSCA MENSAL
     let queryMensal = _supabase
         .from('entregas') 
-        .select('data, quantidade')
+        .select('data, quantidade, valor, origem')
         .gte('data', dataInicio)
         .lte('data', dataFim);
 
@@ -1505,6 +1527,7 @@ async function atualizarDadosCalendario(pularBuscaAnual = false) {
     }
 
     let promessaAnual = null;
+    let promessaAnualValor = null;
     if (!pularBuscaAnual) {
         let queryAnual = _supabase
             .from('resumo_entregas_contagem')
@@ -1516,14 +1539,28 @@ async function atualizarDadosCalendario(pularBuscaAnual = false) {
             queryAnual = queryAnual.eq('origem', origem);
         }
         promessaAnual = queryAnual;
+
+        let queryAnualValor = _supabase
+            .from('resumo_entregas_mensais')
+            .select('mes_referencia, origem, total_valor')
+            .gte('mes_referencia', `${anoNum}-01-01`)
+            .lte('mes_referencia', `${anoNum}-12-31`);
+
+        if (origem !== "Todos") {
+            queryAnualValor = queryAnualValor.eq('origem', origem);
+        }
+        promessaAnualValor = queryAnualValor;
     }
 
-    const [resMensal, resAnual] = await Promise.all([
+    const [resMensal, resAnual, resAnualValor] = await Promise.all([
         queryMensal,
-        promessaAnual 
+        promessaAnual,
+        promessaAnualValor
     ]);
 
     // 4. PREENCHIMENTO DO CALENDÁRIO (Lógica corrigida)
+    // 4. PREENCHIMENTO DO CALENDÁRIO (Lógica corrigida)
+    const dadosCalendarioPorDia = {};
     if (!resMensal.error && resMensal.data) {
         // Criamos um mapa para somar as quantidades por dia primeiro
         const totaisPorDia = {};
@@ -1531,6 +1568,16 @@ async function atualizarDadosCalendario(pularBuscaAnual = false) {
         resMensal.data.forEach(entrega => {
             const dia = parseInt(entrega.data.split('-')[2]);
             totaisPorDia[dia] = (totaisPorDia[dia] || 0) + (entrega.quantidade || 0);
+
+            // Valor total do lançamento = valor unitário x quantidade
+            const valorTotalEntrega = (entrega.valor || 0) * (entrega.quantidade || 0);
+
+            // Guarda o total e o total por origem daquele dia, pro tooltip
+            if (!dadosCalendarioPorDia[dia]) {
+                dadosCalendarioPorDia[dia] = { total: 0, origens: {} };
+            }
+            dadosCalendarioPorDia[dia].total += valorTotalEntrega;
+            dadosCalendarioPorDia[dia].origens[entrega.origem] = (dadosCalendarioPorDia[dia].origens[entrega.origem] || 0) + valorTotalEntrega;
         });
 
         // Agora aplicamos os totais aos cards, evitando o acúmulo de texto
@@ -1550,6 +1597,8 @@ async function atualizarDadosCalendario(pularBuscaAnual = false) {
             }
         });
     }
+
+    configurarTooltipCalendario(dadosCalendarioPorDia);
 
     // 5. PREENCHIMENTO DO HISTÓRICO ANUAL
     const cardsAnuaisValores = document.querySelectorAll('.card-entregas-total-quant');
@@ -1573,7 +1622,168 @@ async function atualizarDadosCalendario(pularBuscaAnual = false) {
                 cardsAnuaisValores[i].style.color = (i === mesNum) ? '#6366f1' : '#64748b';
             }
         });
+
+        // Monta os dados de valor/origem por mês, pro tooltip
+        const dadosAnualPorMes = Array.from({ length: 12 }, () => ({ total: 0, origens: {} }));
+
+        if (resAnualValor && !resAnualValor.error && resAnualValor.data) {
+            resAnualValor.data.forEach(item => {
+                const dataObjeto = new Date(item.mes_referencia);
+                const mesItem = dataObjeto.getUTCMonth();
+                const valor = item.total_valor || 0;
+
+                dadosAnualPorMes[mesItem].total += valor;
+                dadosAnualPorMes[mesItem].origens[item.origem] = (dadosAnualPorMes[mesItem].origens[item.origem] || 0) + valor;
+            });
+        }
+
+        configurarTooltipAnual(dadosAnualPorMes);
     }
+}
+
+const coresOrigemTooltip = {
+    'Agilize': '#833ff6',
+    'Aiqfome': '#03a097',
+    'Bee': '#ffcc00'
+};
+
+function getTooltipCalendario() {
+    let tooltip = document.getElementById('tooltip-calendario');
+    if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'tooltip-calendario';
+        tooltip.className = 'tooltip-calendario';
+        document.body.appendChild(tooltip);
+    }
+    return tooltip;
+}
+
+function mostrarTooltip(elementoAncora, dados, posicao = 'top') {
+    const tooltip = getTooltipCalendario();
+
+    const totalFormatado = `R$${dados.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+    const linhasOrigem = Object.keys(coresOrigemTooltip).map(origem => {
+        const valorOrigem = dados.origens[origem] || 0;
+        const valorFormatado = `R$${valorOrigem.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+        return `
+            <div class="tooltip-linha-origem">
+                <span class="tooltip-bolinha" style="background-color: ${coresOrigemTooltip[origem]};"></span>
+                <span class="tooltip-valor-origem">${valorFormatado}</span>
+            </div>`;
+    }).join('');
+
+    tooltip.innerHTML = `
+        <div class="tooltip-total">${totalFormatado}</div>
+        <div class="tooltip-divisor"></div>
+        ${linhasOrigem}
+    `;
+    tooltip.style.display = 'flex';
+    tooltip.classList.toggle('tooltip-calendario--right', posicao === 'right');
+
+    const rect = elementoAncora.getBoundingClientRect();
+    const tooltipWidth = tooltip.offsetWidth;
+    const tooltipHeight = tooltip.offsetHeight;
+
+    let top, left;
+    if (posicao === 'right') {
+        top = rect.top + window.scrollY + (rect.height / 2) - (tooltipHeight / 2);
+        left = rect.right + window.scrollX + 10;
+    } else {
+        top = rect.top + window.scrollY - tooltipHeight - 10;
+        left = rect.left + window.scrollX + (rect.width / 2) - (tooltipWidth / 2);
+    }
+
+    tooltip.style.top = `${top}px`;
+    tooltip.style.left = `${left}px`;
+}
+
+function esconderTooltip() {
+    const tooltip = document.getElementById('tooltip-calendario');
+    if (tooltip) tooltip.style.display = 'none';
+}
+
+function configurarTooltipAnual(dadosPorMes, seletorCards = '.entregas-mensal-grid .card-entregas-total', posicao = 'top') {
+    const cards = document.querySelectorAll(seletorCards);
+
+    cards.forEach((card, i) => {
+        const dadosItem = dadosPorMes[i] || { total: 0, origens: {} };
+        let timeoutId = null;
+
+        card.onmouseenter = () => {
+            timeoutId = setTimeout(() => mostrarTooltip(card, dadosItem, posicao), 500);
+        };
+
+        card.onmouseleave = () => {
+            clearTimeout(timeoutId);
+            esconderTooltip();
+        };
+    });
+}
+
+// Tooltip flutuante do calendário de Entregas
+function configurarTooltipCalendario(dadosPorDia) {
+    const coresOrigemTooltip = {
+        'Agilize': '#833ff6',
+        'Aiqfome': '#03a097',
+        'Bee': '#ffcc00'
+    };
+
+    let tooltip = document.getElementById('tooltip-calendario');
+    if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'tooltip-calendario';
+        tooltip.className = 'tooltip-calendario';
+        document.body.appendChild(tooltip);
+    }
+
+    const cards = document.querySelectorAll('.dia-mes-card:not(.vazio)');
+
+    cards.forEach(card => {
+        const textoData = card.querySelector('.data-texto').innerText;
+        const diaDoCard = parseInt(textoData.split('/')[0]);
+        const dadosDia = dadosPorDia[diaDoCard] || { total: 0, origens: {} };
+
+        let timeoutId = null;
+
+        card.onmouseenter = () => {
+            timeoutId = setTimeout(() => {
+                const totalFormatado = `R$${dadosDia.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+
+                const linhasOrigem = Object.keys(coresOrigemTooltip).map(origem => {
+                    const valorOrigem = dadosDia.origens[origem] || 0;
+                    const valorFormatado = `R$${valorOrigem.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+                    return `
+                        <div class="tooltip-linha-origem">
+                            <span class="tooltip-bolinha" style="background-color: ${coresOrigemTooltip[origem]};"></span>
+                            <span class="tooltip-valor-origem">${valorFormatado}</span>
+                        </div>`;
+                }).join('');
+
+                tooltip.innerHTML = `
+                    <div class="tooltip-total">${totalFormatado}</div>
+                    <div class="tooltip-divisor"></div>
+                    ${linhasOrigem}
+                `;
+                tooltip.style.display = 'flex';
+
+                // Posiciona a caixa parada, centralizada acima do quadradinho
+                const rect = card.getBoundingClientRect();
+                const tooltipWidth = tooltip.offsetWidth;
+                const tooltipHeight = tooltip.offsetHeight;
+
+                const top = rect.top + window.scrollY - tooltipHeight - 10;
+                const left = rect.left + window.scrollX + (rect.width / 2) - (tooltipWidth / 2);
+
+                tooltip.style.top = `${top}px`;
+                tooltip.style.left = `${left}px`;
+            }, 500);
+        };
+
+        card.onmouseleave = () => {
+            clearTimeout(timeoutId);
+            tooltip.style.display = 'none';
+        };
+    });
 }
 
 // Variável global para fácil alteração
@@ -1714,7 +1924,7 @@ async function atualizarGraficoFinancas() {
     const percEntregas = totalCategorias > 0 ? Math.round((totalEntregas / totalCategorias) * 100) : 0;
     const percServicos = totalCategorias > 0 ? 100 - percEntregas : 0;
 
-    const origens = ['Açaiteria', 'Aplicativos', 'Unter Tech'];
+    const origens = ['Agilize', 'Aiqfome', 'Bee'];
     const dadosOrigem = origens.map(origem => {
         const valorItem = valorPorOrigem?.find(i => i.origem === origem);
         const contItem = contagemPorOrigem?.find(i => i.origem === origem);
@@ -1726,7 +1936,7 @@ async function atualizarGraficoFinancas() {
     });
     const totalValorOrigens = dadosOrigem.reduce((acc, i) => acc + i.valor, 0);
 
-    const criarCirculo = (tamanho, raio, percentual, titulo, valorBruto, textoInferior, isMini = false) => {
+    const criarCirculo = (tamanho, raio, percentual, titulo, valorBruto, textoInferior, isMini = false, cor = '#6366f1') => {
         const circ = 2 * Math.PI * raio;
         const off = circ - (percentual / 100) * circ;
         const stroke = isMini ? 16 : 22;
@@ -1737,21 +1947,26 @@ async function atualizarGraficoFinancas() {
                 <svg width="${tamanho}" height="${tamanho}" style="transform: rotate(-90deg); position: absolute;">
                     <circle class="circle-bg" cx="${tamanho/2}" cy="${tamanho/2}" r="${raio}" style="stroke-width: ${stroke}; fill: none;"></circle>
                     <circle class="circle-progress" cx="${tamanho/2}" cy="${tamanho/2}" r="${raio}" 
-                        style="stroke-dasharray: ${circ}; stroke-dashoffset: ${off}; stroke-width: ${stroke}; fill: none; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease;">
+                        style="stroke-dasharray: ${circ}; stroke-dashoffset: ${off}; stroke-width: ${stroke}; fill: none; stroke-linecap: round; stroke: ${cor}; transition: stroke-dashoffset 0.5s ease;">
                     </circle>
                 </svg>
                 <div class="circle-center" style="display: flex; flex-direction: column; align-items: center; text-align: center; z-index: 2;">
-                    <span class="label-ganhos" style="color: #64748b; ${isMini ? 'font-size: 12px;' : 'font-size: 15px;'}">${titulo}</span>
-                    <span class="valor-atual" style="font-weight: bold; color: #6366f1; margin: 2px 0; ${isMini ? 'font-size: 20px;' : 'font-size: 30px;'}">${valorFormatado}</span>
-                    <span class="meta-info" style="color: #94a3b8; font-weight: 500; ${isMini ? 'font-size: 14px;' : 'font-size: 12px;'}">${textoInferior}</span>
+                    <span class="label-ganhos" style="color: #64748b; ${isMini ? 'font-size: 14px;' : 'font-size: 15px;'}">${titulo}</span>                    <span class="valor-atual" style="font-weight: bold; color: ${cor}; margin: 2px 0; ${isMini ? 'font-size: 20px;' : 'font-size: 30px;'}">${valorFormatado}</span>                    <span class="meta-info" style="color: #94a3b8; font-weight: 500; ${isMini ? 'font-size: 14px;' : 'font-size: 12px;'}">${textoInferior}</span>
                 </div>
             </div>
         `;
     };
 
+    const coresOrigem = {
+        'Agilize': '#833ff6',
+        'Aiqfome': '#03a097',
+        'Bee': '#ffcc00'
+    };
+
     const circulosOrigem = dadosOrigem.map(item => {
         const perc = totalValorOrigens > 0 ? Math.round((item.valor / totalValorOrigens) * 100) : 0;
-        return `<div class="mini-grafico-lateral">${criarCirculo(200, 85, perc, item.origem, item.valor, `${item.quantidade} entregas`, true)}</div>`;
+        const corOrigem = coresOrigem[item.origem] || '#6366f1';
+        return `<div class="mini-grafico-lateral">${criarCirculo(200, 85, perc, item.origem, item.valor, `${item.quantidade} entregas`, true, corOrigem)}</div>`;
     }).join('');
 
     const cardsContas = (contas || []).map(conta => {
@@ -1867,6 +2082,37 @@ async function atualizarGraficoFinancas() {
                 </div>
             </div>
 
+            <div style="width: 100%; margin: 50px 0 0 0; padding: 0 40px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 24px;">
+                    <div style="width: 4px; height: 20px; background-color: #6366f1; border-radius: 2px;"></div>
+                    <h3 style="font-size: 16px; font-weight: 600; color: #475569; margin: 0;">Ganhos dos últimos três meses</h3>
+                </div>
+                <div style="display: flex; align-items: stretch; width: 100%; max-width: 585px; height: 280px; padding: 30px 20px 20px 12px; background: transparent; box-sizing: border-box; border-radius: 12px; border: 1px solid #6366f1;">
+                    <div id="grafico-y-axis-financas" style="display: flex; flex-direction: column; justify-content: space-between; padding-right: 10px; padding-bottom: 28px; color: #64748b; font-size: 11px; text-align: right; border-right: 2px solid #e2e8f0; font-weight: 600; flex-shrink: 0; white-space: nowrap;">
+                        <span>4000</span>
+                        <span>3000</span>
+                        <span>2000</span>
+                        <span>1000</span>
+                        <span>0</span>
+                    </div>
+                    <div style="position: relative; flex: 1; display: flex; flex-direction: column;">
+                        <div id="grafico-visual-financas" style="position: relative; flex: 1; overflow: visible;">
+                            <div style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; z-index: 1;">
+                                <div style="width: 100%; height: 1px; background-color: #e2e8f0;"></div>
+                                <div style="width: 100%; height: 1px; background-color: #e2e8f0;"></div>
+                                <div style="width: 100%; height: 1px; background-color: #e2e8f0;"></div>
+                                <div style="width: 100%; height: 1px; background-color: #e2e8f0;"></div>
+                                <div style="width: 100%; height: 1px; background-color: #e2e8f0;"></div>
+                            </div>
+                            <div id="grafico-bars-financas" style="position: absolute; inset: 0; display: flex; justify-content: space-around; align-items: flex-end; z-index: 2; overflow: visible;">
+                                <span style="color: #6366f1; font-size: 12px; padding: 8px;">Carregando...</span>
+                            </div>
+                        </div>
+                        <div id="grafico-labels-financas" style="display: flex; justify-content: space-around; height: 28px; align-items: center; padding: 0 2px;"></div>
+                    </div>
+                </div>
+            </div>
+
             <div style="width: 100%; margin: 50px 0 40px 0; padding: 0 40px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 24px;">
                     <div style="width: 4px; height: 20px; background-color: #6366f1; border-radius: 2px;"></div>
@@ -1878,6 +2124,83 @@ async function atualizarGraficoFinancas() {
             </div>
         </div>
     `;
+
+    renderizarGraficoTrimestralFinancas();
+}
+
+async function renderizarGraficoTrimestralFinancas() {
+    const barsContainer = document.getElementById('grafico-bars-financas');
+    const labelsContainer = document.getElementById('grafico-labels-financas');
+    const chartVisual = document.getElementById('grafico-visual-financas');
+
+    if (!barsContainer || !labelsContainer || !chartVisual) return;
+
+    const META_MAXIMA = 4000;
+
+    const mesesParaBuscar = [];
+    for (let i = 2; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(1);
+        d.setMonth(d.getMonth() - i);
+        mesesParaBuscar.push({
+            mes: String(d.getMonth() + 1).padStart(2, '0'),
+            ano: d.getFullYear(),
+            nome: d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')
+        });
+    }
+
+    barsContainer.innerHTML = '<span style="color: #6366f1; font-size: 12px; padding: 8px;">Carregando...</span>';
+    labelsContainer.innerHTML = '';
+
+    const resultados = await Promise.all(
+        mesesParaBuscar.map(item => buscarGanhosTotaisDoMes(item.mes, item.ano))
+    );
+
+    const alturaZona = chartVisual.clientHeight;
+
+    barsContainer.innerHTML = '';
+    labelsContainer.innerHTML = '';
+
+    resultados.forEach((totalGanhos, index) => {
+        const item = mesesParaBuscar[index];
+        const proporcao = Math.min(totalGanhos / META_MAXIMA, 1);
+        const alturaPx = Math.round(proporcao * alturaZona);
+
+        const valorFormatado = totalGanhos.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).replace(/R\$\s/, 'R$');
+
+        // Grupo da barra
+        const group = document.createElement('div');
+        group.style.cssText = 'display: flex; flex-direction: column; align-items: center; width: 60px; height: 100%; justify-content: flex-end; overflow: visible;';
+
+        const col = document.createElement('div');
+        col.style.cssText = `width: 80px; background-color: #6366f1; border-radius: 4px 4px 0 0; transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1); min-height: 2px; position: relative; height: 0px;`;
+
+        const valueSpan = document.createElement('span');
+        valueSpan.style.cssText = 'font-size: 11px; font-weight: bold; color: #6366f1; white-space: nowrap; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 4px;';
+        valueSpan.textContent = valorFormatado;
+
+        col.appendChild(valueSpan);
+        group.appendChild(col);
+        barsContainer.appendChild(group);
+
+        // Anima após um frame
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                col.style.height = alturaPx + 'px';
+            });
+        });
+
+        // Label do mês
+        const label = document.createElement('span');
+        label.style.cssText = 'font-size: 12px; color: #64748b; text-transform: capitalize; font-weight: 500; width: 60px; text-align: center;';
+        label.textContent = item.nome;
+        labelsContainer.appendChild(label);
+    });
 }
 
 function flipCard(wrapper) {
@@ -2136,11 +2459,10 @@ async function renderizarDashboard(dataInicioForcada = null) {
     const domingo = new Date(referenciaCalendario);
     domingo.setHours(0, 0, 0, 0);
     const diaSemana = referenciaCalendario.getDay(); // 0=Dom, 1=Seg...
-    const diasAtéSegunda = (diaSemana === 0 ? 6 : diaSemana - 1); // Dom vira 6, Seg vira 0, etc.
-    domingo.setDate(referenciaCalendario.getDate() - diasAtéSegunda);
+    domingo.setDate(referenciaCalendario.getDate() - diaSemana); // Volta até o domingo da semana
 
     const mesesAbrev = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-    const diasSemana = ["SEG", "TER", "QUA", "QUI", "SEX", "SÁB", "DOM"];
+    const diasSemana = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
 
     let htmlCalendario = `<div class="calendario-dashboard-compacto" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; padding: 0; background: transparent;">`;     
     diasSemana.forEach(dia => { htmlCalendario += `<div class="dia-semana-card">${dia}</div>`; });
@@ -2221,7 +2543,7 @@ domingosUltimasSemanas.forEach(dom => {
     const metaValor = typeof metaDoMes !== 'undefined' ? metaDoMes : 5000;
     const percPrincipal = Math.min((ganhosAtuaisVisual / metaValor) * 100, 100);
 
-    const origens = ['Açaiteria', 'Aplicativos', 'Unter Tech'];
+    const origens = ['Agilize', 'Aiqfome', 'Bee'];
     const dadosOrigem = origens.map(origem => {
         const valorItem = valorPorOrigem?.find(i => i.origem === origem);
         const contItem = contagemPorOrigem?.find(i => i.origem === origem);
@@ -2230,7 +2552,7 @@ domingosUltimasSemanas.forEach(dom => {
     const totalValorOrigens = dadosOrigem.reduce((acc, i) => acc + i.valor, 0);
 
     // --- HELPER DE GRÁFICOS ---
-    const criarCirculoDash = (tamanho, raio, percentual, titulo, valorBruto, textoInferior, strokeSize = 14, fonteValor = '17px', fonteTitulo = '11px', fonteInferior = '12px') => {
+    const criarCirculoDash = (tamanho, raio, percentual, titulo, valorBruto, textoInferior, strokeSize = 14, fonteValor = '17px', fonteTitulo = '11px', fonteInferior = '12px', cor = '#6366f1') => {
         const circ = 2 * Math.PI * raio;
         const off = circ - (percentual / 100) * circ;
         const valorFormatado = `R$${valorBruto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
@@ -2238,21 +2560,27 @@ domingosUltimasSemanas.forEach(dom => {
             <div class="progress-circle" style="width: ${tamanho}px; height: ${tamanho}px; display: flex; align-items: center; justify-content: center; position: relative;">
                 <svg width="${tamanho}" height="${tamanho}" style="transform: rotate(-90deg); position: absolute;">
                     <circle class="circle-bg" cx="${tamanho/2}" cy="${tamanho/2}" r="${raio}" style="stroke-width: ${strokeSize}; fill: none;"></circle>
-                    <circle class="circle-progress" cx="${tamanho/2}" cy="${tamanho/2}" r="${raio}" style="stroke-dasharray: ${circ}; stroke-dashoffset: ${off}; stroke-width: ${strokeSize}; fill: none; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease;"></circle>
+                    <circle class="circle-progress" cx="${tamanho/2}" cy="${tamanho/2}" r="${raio}" style="stroke-dasharray: ${circ}; stroke-dashoffset: ${off}; stroke-width: ${strokeSize}; fill: none; stroke-linecap: round; stroke: ${cor}; transition: stroke-dashoffset 0.5s ease;"></circle>
                 </svg>
                 <div class="circle-center" style="display: flex; flex-direction: column; align-items: center; text-align: center; z-index: 2;">
                     <span class="label-ganhos" style="color: #64748b; font-size: ${fonteTitulo};">${titulo}</span>
-                    <span class="valor-atual" style="font-weight: bold; color: #6366f1; margin: 2px 0; font-size: ${fonteValor};">${valorFormatado}</span>
+                    <span class="valor-atual" style="font-weight: bold; color: ${cor}; margin: 2px 0; font-size: ${fonteValor};">${valorFormatado}</span>
                     <span class="meta-info" style="color: #94a3b8; font-weight: 500; font-size: ${fonteInferior};">${textoInferior}</span>
                 </div>
             </div>`;
     };
 
+    const coresOrigem = {
+        'Agilize': '#833ff6',
+        'Aiqfome': '#03a097',
+        'Bee': '#ffcc00'
+    };
+
     const circuloGanhos = criarCirculoDash(250, 105, percPrincipal, "Ganhos do mês", ganhosAtuaisVisual, `Meta: R$${metaValor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 22, '30px', '15px', '12px');
     const circulosOrigemDash = dadosOrigem.map(item => {
         const perc = totalValorOrigens > 0 ? Math.round((item.valor / totalValorOrigens) * 100) : 0;
-        return `<div class="mini-grafico-lateral">${criarCirculoDash(180, 75, perc, item.origem, item.valor, `${item.quantidade} entregas`, 16, '20px', '12px', '14px')}</div>`;
-    }).join('');
+        const corOrigem = coresOrigem[item.origem] || '#6366f1';
+        return `<div class="mini-grafico-lateral">${criarCirculoDash(180, 75, perc, item.origem, item.valor, `${item.quantidade} entregas`, 16, '20px', '14px', '14px', corOrigem)}</div>`;    }).join('');
 
     // --- RENDERIZAÇÃO FINAL ---
     mainContent.innerHTML = `
@@ -2262,8 +2590,7 @@ domingosUltimasSemanas.forEach(dom => {
                     <div style="margin-bottom: 20px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <div style="width: 4px; height: 20px; background-color: #6366f1; border-radius: 2px;"></div>
-                            <h3 style="font-size: 16px; font-weight: 600; color: #475569; margin: 0;">Entregas semanais da Açaiteria</h3>
-                        </div>
+                            <h3 style="font-size: 16px; font-weight: 600; color: #475569; margin: 0;">Entregas semanais</h3>                        </div>
                     </div>
                     <div id="btn-periodo" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 34px; background-color: #6366f1; border-radius: 15px 15px 0 0; margin-bottom: 10px; padding: 0 16px; box-sizing: border-box; color: white; gap: 10px; cursor: pointer;">
                         <span style="font-size: 15px; font-weight: bold; letter-spacing: 0.3px; line-height: 1;">Período</span>
@@ -2274,23 +2601,22 @@ domingosUltimasSemanas.forEach(dom => {
                     </div>
                     <div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; gap: 10px; padding: 0;">
                         <div class="layout-entregas" style="margin: 0; width: auto; padding: 0;">${htmlCalendario}</div>
-                        <div class="card-entregas-total" style="margin: 0; height: 106px; display: flex; flex-direction: column;">
-                            <div class="card-entregas-total-header" style="flex: 0.54; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">Total</div>
+                        <div class="card-entregas-total card-total-semana" style="margin: 0; height: 106px; display: flex; flex-direction: column;">                            <div class="card-entregas-total-header" style="flex: 0.54; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">Total</div>
                             <div class="card-entregas-total-quant" id="soma-semanal-valor" style="flex: 1.46; display: flex; align-items: center; justify-content: center; margin: 0; font-size: 1.6rem;">0</div>
                         </div>
                     </div>
                     <div style="margin-top: 32px; margin-bottom: 16px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <div style="width: 4px; height: 20px; background-color: #6366f1; border-radius: 2px;"></div>
-                            <h3 style="font-size: 16px; font-weight: 600; color: #475569; margin: 0;">Ganhos dos últimos três meses</h3>
+                            <h3 style="font-size: 16px; font-weight: 600; color: #475569; margin: 0;">Ganhos semanais com entregas</h3>
                         </div>
                     </div>
                     <div style="display: flex; align-items: stretch; width: 100%; max-width: 585px; height: 280px; padding: 30px 20px 20px 12px; background: transparent; box-sizing: border-box; border-radius: 12px; border: 1px solid #6366f1;">
                         <div id="grafico-y-axis" style="display: flex; flex-direction: column; justify-content: space-between; padding-right: 10px; padding-bottom: 28px; color: #64748b; font-size: 11px; text-align: right; border-right: 2px solid #e2e8f0; font-weight: 600; flex-shrink: 0; white-space: nowrap;">
-                            <span>4000</span>
-                            <span>3000</span>
-                            <span>2000</span>
-                            <span>1000</span>
+                            <span>200</span>
+                            <span>150</span>
+                            <span>100</span>
+                            <span>50</span>
                             <span>0</span>
                         </div>
                         <div style="position: relative; flex: 1; display: flex; flex-direction: column;">
@@ -2352,9 +2678,6 @@ domingosUltimasSemanas.forEach(dom => {
 
     // Popula o calendário semanal
     buscarDadosDashboardSemanal(domingo);
-
-    // Renderiza o gráfico trimestral
-    renderizarGraficoTrimestral();
 }
 
 async function buscarGanhosTotaisDoMes(mes, ano) {
@@ -2385,77 +2708,59 @@ async function buscarGanhosTotaisDoMes(mes, ano) {
     return totalEntregas + totalServicos;
 }
 
-async function renderizarGraficoTrimestral() {
+function renderizarGraficoSemanal(dadosOrdenados) {
     const barsContainer = document.getElementById('grafico-bars');
     const labelsContainer = document.getElementById('grafico-labels');
     const chartVisual = document.getElementById('grafico-visual');
 
     if (!barsContainer || !labelsContainer || !chartVisual) return;
 
-    const META_MAXIMA = 4000;
-
-    const mesesParaBuscar = [];
-    for (let i = 2; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(1);
-        d.setMonth(d.getMonth() - i);
-        mesesParaBuscar.push({
-            mes: String(d.getMonth() + 1).padStart(2, '0'),
-            ano: d.getFullYear(),
-            nome: d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')
-        });
-    }
-
-    barsContainer.innerHTML = '<span style="color: #6366f1; font-size: 12px; padding: 8px;">Carregando...</span>';
-    labelsContainer.innerHTML = '';
-
-    const resultados = await Promise.all(
-        mesesParaBuscar.map(item => buscarGanhosTotaisDoMes(item.mes, item.ano))
-    );
-
-    const alturaZona = chartVisual.clientHeight;
+    const META_MAXIMA = 200;
+    const diasSemanaNomes = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
     barsContainer.innerHTML = '';
     labelsContainer.innerHTML = '';
 
-    resultados.forEach((totalGanhos, index) => {
-        const item = mesesParaBuscar[index];
-        const proporcao = Math.min(totalGanhos / META_MAXIMA, 1);
-        const alturaPx = Math.round(proporcao * alturaZona);
+    dadosOrdenados.forEach((dadosDia, index) => {
+        const proporcao = Math.min(dadosDia.total / META_MAXIMA, 1);
+        const porcentagem = proporcao * 100;
 
-        const valorFormatado = totalGanhos.toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).replace(/R\$\s/, 'R$');
-
-        // Grupo da barra
         const group = document.createElement('div');
-        group.style.cssText = 'display: flex; flex-direction: column; align-items: center; width: 60px; height: 100%; justify-content: flex-end; overflow: visible;';
+        // Transformamos o grupo em uma âncora relativa, mantendo o alinhamento central
+        group.style.cssText = 'position: relative; display: flex; justify-content: center; width: 40px; height: 100%; overflow: visible;';
 
         const col = document.createElement('div');
-        col.style.cssText = `width: 80px; background-color: #6366f1; border-radius: 4px 4px 0 0; transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1); min-height: 2px; position: relative; height: 0px;`;
+        col.className = 'barra-semanal';
+        // O absolute + bottom 0 garante o crescimento irrestrito apenas para cima
+        col.style.cssText = 'position: absolute; bottom: 0; width: 32px; background-color: #6366f1; border-radius: 4px 4px 0 0; min-height: 2px; height: 0%; max-height: none !important;';
 
-        const valueSpan = document.createElement('span');
-        valueSpan.style.cssText = 'font-size: 11px; font-weight: bold; color: #6366f1; white-space: nowrap; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 4px;';
-        valueSpan.textContent = valorFormatado;
-
-        col.appendChild(valueSpan);
         group.appendChild(col);
         barsContainer.appendChild(group);
 
-        // Anima após um frame
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-                col.style.height = alturaPx + 'px';
+                col.style.height = `${porcentagem}%`;
             });
         });
 
-        // Label do mês
+        let timeoutId = null;
+
+        col.onmouseenter = () => {
+            col.style.height = `calc(${porcentagem}% + 10px)`;
+            timeoutId = setTimeout(() => {
+                mostrarTooltip(col, dadosDia, 'top');
+            }, 400);
+        };
+
+        col.onmouseleave = () => {
+            clearTimeout(timeoutId);
+            col.style.height = `${porcentagem}%`;
+            esconderTooltip();
+        };
+
         const label = document.createElement('span');
-        label.style.cssText = 'font-size: 12px; color: #64748b; text-transform: capitalize; font-weight: 500; width: 60px; text-align: center;';
-        label.textContent = item.nome;
+        label.style.cssText = 'font-size: 12px; color: #64748b; font-weight: 500; width: 40px; text-align: center;';
+        label.textContent = diasSemanaNomes[index];
         labelsContainer.appendChild(label);
     });
 }
@@ -2478,13 +2783,13 @@ async function buscarDadosDashboardSemanal(dataInicioSemana) {
 
     const { data, error } = await _supabase
         .from('entregas') 
-        .select('data, quantidade')
-        .eq('origem', 'Açaiteria')
+        .select('data, quantidade, valor, origem')
         .gte('data', inicio)
         .lte('data', fim);
 
     if (!error && data) {
         const totaisPorDia = {};
+        const dadosCalendarioPorDia = {};
         let somaTotalSemana = 0; 
 
         data.forEach(entrega => {
@@ -2492,6 +2797,16 @@ async function buscarDadosDashboardSemanal(dataInicioSemana) {
             const qtd = (entrega.quantidade || 0);
             totaisPorDia[dataPura] = (totaisPorDia[dataPura] || 0) + qtd;
             somaTotalSemana += qtd; 
+
+            // Valor total do lançamento = valor unitário x quantidade, pro tooltip
+            const diaDoMes = parseInt(dataPura.split('-')[2]);
+            const valorTotalEntrega = (entrega.valor || 0) * qtd;
+
+            if (!dadosCalendarioPorDia[diaDoMes]) {
+                dadosCalendarioPorDia[diaDoMes] = { total: 0, origens: {} };
+            }
+            dadosCalendarioPorDia[diaDoMes].total += valorTotalEntrega;
+            dadosCalendarioPorDia[diaDoMes].origens[entrega.origem] = (dadosCalendarioPorDia[diaDoMes].origens[entrega.origem] || 0) + valorTotalEntrega;
         });
 
         const elementoSoma = document.getElementById('soma-semanal-valor');
@@ -2513,6 +2828,30 @@ async function buscarDadosDashboardSemanal(dataInicioSemana) {
                 spanQtd.style.color = '#64748b';
             }
         });
+
+        configurarTooltipCalendario(dadosCalendarioPorDia);
+
+        // Soma tudo da semana pro tooltip do card "Total"
+        const dadosSemanaTotal = { total: 0, origens: {} };
+        Object.values(dadosCalendarioPorDia).forEach(dia => {
+            dadosSemanaTotal.total += dia.total;
+            Object.keys(dia.origens).forEach(origem => {
+                dadosSemanaTotal.origens[origem] = (dadosSemanaTotal.origens[origem] || 0) + dia.origens[origem];
+            });
+        });
+
+        configurarTooltipAnual([dadosSemanaTotal], '.card-total-semana', 'right');
+
+        // Monta os 7 dias (Dom a Sáb) na ordem certa pro gráfico
+        const dadosGraficoSemanal = [];
+        for (let i = 0; i < 7; i++) {
+            const dia = new Date(dataInicioSemana);
+            dia.setDate(dataInicioSemana.getDate() + i);
+            const diaDoMes = dia.getDate();
+            dadosGraficoSemanal.push(dadosCalendarioPorDia[diaDoMes] || { total: 0, origens: {} });
+        }
+
+        renderizarGraficoSemanal(dadosGraficoSemanal);
     }
 }
 
@@ -2520,30 +2859,30 @@ function gerarDatasSemanas() {
     const semanas = [];
     const hoje = new Date();
     
-    // Acha a segunda-feira da semana atual
+    // Acha o domingo da semana atual
     const dw = hoje.getDay();
-    let segundaReferencia = new Date(hoje);
-    segundaReferencia.setDate(hoje.getDate() - (dw === 0 ? 6 : dw - 1));
+    let domingoReferencia = new Date(hoje);
+    domingoReferencia.setDate(hoje.getDate() - dw);
 
     for (let i = 0; i < 5; i++) {
-        const seg = new Date(segundaReferencia);
-        seg.setDate(segundaReferencia.getDate() - (i * 7));
-        semanas.push(seg);
+        const dom = new Date(domingoReferencia);
+        dom.setDate(domingoReferencia.getDate() - (i * 7));
+        semanas.push(dom);
     }
     return semanas;
 }
 
-function formatarLabelSemana(segundaInicio) {
+function formatarLabelSemana(domingoInicio) {
     const mesesAbrev = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
     
-    const domingoFim = new Date(segundaInicio);
-    domingoFim.setDate(segundaInicio.getDate() + 6); // +6 chega no domingo
+    const sabadoFim = new Date(domingoInicio);
+    sabadoFim.setDate(domingoInicio.getDate() + 6); // +6 chega no sábado
 
-    const d1 = String(segundaInicio.getDate()).padStart(2, '0');
-    const m1 = mesesAbrev[segundaInicio.getMonth()];
+    const d1 = String(domingoInicio.getDate()).padStart(2, '0');
+    const m1 = mesesAbrev[domingoInicio.getMonth()];
     
-    const d2 = String(domingoFim.getDate()).padStart(2, '0');
-    const m2 = mesesAbrev[domingoFim.getMonth()];
+    const d2 = String(sabadoFim.getDate()).padStart(2, '0');
+    const m2 = mesesAbrev[sabadoFim.getMonth()];
 
     return `${d1} ${m1} - ${d2} ${m2}`;
 }
