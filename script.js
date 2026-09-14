@@ -2602,8 +2602,8 @@ domingosUltimasSemanas.forEach(dom => {
     // --- RENDERIZAÇÃO FINAL ---
     mainContent.innerHTML = `
         <div id="dashboard-page" style="width: 100%;">
-            <div style="display: flex; flex-direction: row; align-items: flex-start; gap: 60px;">
-                <div style="display: inline-flex; flex-direction: column; position: relative;">
+            <div class="dashboard-flex-row" style="display: flex; flex-direction: row; align-items: flex-start; gap: 60px;">
+                <div class="dashboard-col-semanal" style="display: inline-flex; flex-direction: column; position: relative;">
                     <div style="margin-bottom: 20px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <div style="width: 4px; height: 20px; background-color: #6366f1; border-radius: 2px;"></div>
@@ -2653,7 +2653,7 @@ domingosUltimasSemanas.forEach(dom => {
                         </div>
                     </div>
                 </div>
-                <div style="display: inline-flex; flex-direction: column;">
+                <div class="dashboard-col-mensal" style="display: inline-flex; flex-direction: column;">
                     <div style="margin-bottom: 20px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <div style="width: 4px; height: 20px; background-color: #6366f1; border-radius: 2px;"></div>
@@ -2918,7 +2918,7 @@ function renderizarHome() {
                 Sistema Financeiro
             </h1>
             <h3 class="home-subtitulo">
-                Navegue pelo menu lateral ou utilize os atalhos abaixo: Version 0.1
+                Navegue pelo menu lateral ou utilize os atalhos abaixo: Version 0.2
             </h3>
 
             <!-- Container dos Botões -->
