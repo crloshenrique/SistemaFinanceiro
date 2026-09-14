@@ -1166,6 +1166,7 @@
         /* ===== MENU MOBILE ===== */
 .btn-menu-mobile {
     display: none;
+    transition: transform 0.3s ease;
 }
 
 @media (max-width: 768px) {
@@ -1210,6 +1211,11 @@
 
     .sidebar.menu-aberto {
         transform: translateX(0);
+    }
+
+    
+    .btn-menu-mobile.menu-aberto {
+        transform: translateX(240px);
     }
 
     .sidebar .profile-name,

@@ -292,6 +292,7 @@ sidebar.addEventListener('mouseleave', fecharTodosSubmenus);
 function toggleMenuMobile(event) {
     event.stopPropagation();
     sidebar.classList.toggle('menu-aberto');
+    document.getElementById('btn-menu-mobile').classList.toggle('menu-aberto');
 }
 
 document.addEventListener('click', (event) => {
@@ -300,6 +301,7 @@ document.addEventListener('click', (event) => {
         !sidebar.contains(event.target) &&
         !btnMenu.contains(event.target)) {
         sidebar.classList.remove('menu-aberto');
+        btnMenu.classList.remove('menu-aberto');
     }
 });
 
