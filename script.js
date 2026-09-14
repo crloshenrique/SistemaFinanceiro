@@ -2594,19 +2594,16 @@ domingosUltimasSemanas.forEach(dom => {
     };
 
     const circuloGanhos = criarCirculoDash(250, 105, percPrincipal, "Ganhos do mês", ganhosAtuaisVisual, `Meta: R$${metaValor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 22, '30px', '15px', '12px');
-        const isMobileDash = window.innerWidth <= 768;
     const circulosOrigemDash = dadosOrigem.map(item => {
         const perc = totalValorOrigens > 0 ? Math.round((item.valor / totalValorOrigens) * 100) : 0;
         const corOrigem = coresOrigem[item.origem] || '#6366f1';
-        const tamanhoMini = isMobileDash ? 90 : 180;
-        const raioMini = isMobileDash ? 37 : 75;
-        const strokeMini = isMobileDash ? 8 : 16;
-        return `<div class="mini-grafico-lateral">${criarCirculoDash(tamanhoMini, raioMini, perc, item.origem, item.valor, `${item.quantidade} entregas`, strokeMini, isMobileDash ? '13px' : '20px', isMobileDash ? '10px' : '14px', isMobileDash ? '10px' : '14px', corOrigem)}</div>`;    }).join('');
+        return `<div class="mini-grafico-lateral">${criarCirculoDash(180, 75, perc, item.origem, item.valor, `${item.quantidade} entregas`, 16, '20px', '14px', '14px', corOrigem)}</div>`;    }).join('');
+
     // --- RENDERIZAÇÃO FINAL ---
     mainContent.innerHTML = `
         <div id="dashboard-page" style="width: 100%;">
-            <div class="dashboard-flex-row" style="display: flex; flex-direction: row; align-items: flex-start; gap: 60px;">
-                <div class="dashboard-col-semanal" style="display: inline-flex; flex-direction: column; position: relative;">
+            <div style="display: flex; flex-direction: row; align-items: flex-start; gap: 60px;">
+                <div style="display: inline-flex; flex-direction: column; position: relative;">
                     <div style="margin-bottom: 20px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <div style="width: 4px; height: 20px; background-color: #6366f1; border-radius: 2px;"></div>
@@ -2619,7 +2616,8 @@ domingosUltimasSemanas.forEach(dom => {
                     <div id="menu-semanas" style="display: none; position: absolute; top: 74px; left: 50%; transform: translateX(-50%); background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 100; width: 150px; box-sizing: border-box;">
                         ${htmlItensMenu}
                     </div>
-<div class="dashboard-semanal-row" style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; gap: 10px; padding: 0;">                        <div class="layout-entregas" style="margin: 0; width: auto; padding: 0;">${htmlCalendario}</div>
+                    <div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; gap: 10px; padding: 0;">
+                        <div class="layout-entregas" style="margin: 0; width: auto; padding: 0;">${htmlCalendario}</div>
                         <div class="card-entregas-total card-total-semana" style="margin: 0; height: 106px; display: flex; flex-direction: column;">                            <div class="card-entregas-total-header" style="flex: 0.54; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">Total</div>
                             <div class="card-entregas-total-quant" id="soma-semanal-valor" style="flex: 1.46; display: flex; align-items: center; justify-content: center; margin: 0; font-size: 1.6rem;">0</div>
                         </div>
@@ -2655,7 +2653,7 @@ domingosUltimasSemanas.forEach(dom => {
                         </div>
                     </div>
                 </div>
-                <div class="dashboard-col-mensal" style="display: inline-flex; flex-direction: column;">
+                <div style="display: inline-flex; flex-direction: column;">
                     <div style="margin-bottom: 20px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <div style="width: 4px; height: 20px; background-color: #6366f1; border-radius: 2px;"></div>
@@ -2667,7 +2665,8 @@ domingosUltimasSemanas.forEach(dom => {
                             <div style="width: 4px; height: 20px; background-color: #6366f1; border-radius: 2px;"></div>
                             <h3 style="font-size: 16px; font-weight: 600; color: #475569; margin: 0;">Entregas de ${hoje.toLocaleString('pt-BR', { month: 'long' }).replace(/^\w/, c => c.toUpperCase())}</h3> 
                         </div>
-<div class="dashboard-origem-row" style="display: flex; flex-direction: row; gap: 12px; justify-content: flex-start; align-items: center;">                            ${circulosOrigemDash}
+                        <div style="display: flex; flex-direction: row; gap: 12px; justify-content: flex-start; align-items: center;">
+                            ${circulosOrigemDash}
                         </div>
                     </div>
                 </div>
@@ -2912,14 +2911,14 @@ function renderizarHome() {
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: calc(100vh - 100px); text-align: center;">
             
             <div style="margin-bottom: 25px;">
-                <img src="imagens/logohome.png" alt="Logo" class="home-logo">
+                <img src="imagens/logohome.png" alt="Logo" style="width: 110px; height: 110px; object-fit: contain;">
             </div>
 
-            <h1 class="home-titulo">
+            <h1 style="color: #6366f1; font-size: 2.5rem; font-weight: 800; margin-bottom: 5px;">
                 Sistema Financeiro
             </h1>
-            <h3 class="home-subtitulo">
-                Navegue pelo menu lateral ou utilize os atalhos abaixo: Version 0.4
+            <h3 style="color: #64748b; font-size: 1.2rem; font-weight: 500; margin-bottom: 40px;">
+                Navegue pelo menu lateral ou utilize os atalhos abaixo:
             </h3>
 
             <!-- Container dos Botões -->
@@ -2985,56 +2984,6 @@ function renderizarHome() {
             /* Quando o mouse passar: Imagem muda de roxo para branco */
             .card-atalho:hover img {
                 filter: brightness(0) invert(1);
-            }
-
-            .home-logo {
-                width: 110px;
-                height: 110px;
-                object-fit: contain;
-            }
-
-            .home-titulo {
-                color: #6366f1;
-                font-size: 2.5rem;
-                font-weight: 800;
-                margin-bottom: 5px;
-            }
-
-            .home-subtitulo {
-                color: #64748b;
-                font-size: 1.2rem;
-                font-weight: 500;
-                margin-bottom: 40px;
-            }
-
-            @media (max-width: 768px) {
-                .home-logo {
-                    width: 65px;
-                    height: 65px;
-                }
-
-                .home-titulo {
-                    font-size: 1.6rem;
-                }
-
-                .home-subtitulo {
-                    font-size: 0.9rem;
-                }
-
-                .atalho-icon-wrapper {
-                    width: 42px;
-                    height: 42px;
-                }
-
-                .card-atalho {
-                    width: 75px;
-                    padding: 12px;
-                }
-
-                .card-atalho img {
-                    width: 28px;
-                    height: 28px;
-                }
             }
         </style>
     `;
