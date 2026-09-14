@@ -2746,7 +2746,7 @@ function renderizarGraficoSemanal(dadosOrdenados) {
         let timeoutId = null;
 
         col.onmouseenter = () => {
-            col.style.height = `calc(${porcentagem}% + 10px)`;
+            col.style.height = `calc(${porcentagem}% + 7px)`;
             timeoutId = setTimeout(() => {
                 mostrarTooltip(col, dadosDia, 'top');
             }, 400);
