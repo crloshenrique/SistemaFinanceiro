@@ -2911,14 +2911,14 @@ function renderizarHome() {
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: calc(100vh - 100px); text-align: center;">
             
             <div style="margin-bottom: 25px;">
-                <img src="imagens/logohome.png" alt="Logo" style="width: 110px; height: 110px; object-fit: contain;">
+                <img src="imagens/logohome.png" alt="Logo" class="home-logo">
             </div>
 
-            <h1 style="color: #6366f1; font-size: 2.5rem; font-weight: 800; margin-bottom: 5px;">
+            <h1 class="home-titulo">
                 Sistema Financeiro
             </h1>
-            <h3 style="color: #64748b; font-size: 1.2rem; font-weight: 500; margin-bottom: 40px;">
-                Navegue pelo menu lateral ou utilize os atalhos abaixo:
+            <h3 class="home-subtitulo">
+                Navegue pelo menu lateral ou utilize os atalhos abaixo: Version 0.1
             </h3>
 
             <!-- Container dos Botões -->
@@ -2984,6 +2984,56 @@ function renderizarHome() {
             /* Quando o mouse passar: Imagem muda de roxo para branco */
             .card-atalho:hover img {
                 filter: brightness(0) invert(1);
+            }
+
+            .home-logo {
+                width: 110px;
+                height: 110px;
+                object-fit: contain;
+            }
+
+            .home-titulo {
+                color: #6366f1;
+                font-size: 2.5rem;
+                font-weight: 800;
+                margin-bottom: 5px;
+            }
+
+            .home-subtitulo {
+                color: #64748b;
+                font-size: 1.2rem;
+                font-weight: 500;
+                margin-bottom: 40px;
+            }
+
+            @media (max-width: 768px) {
+                .home-logo {
+                    width: 65px;
+                    height: 65px;
+                }
+
+                .home-titulo {
+                    font-size: 1.6rem;
+                }
+
+                .home-subtitulo {
+                    font-size: 0.9rem;
+                }
+
+                .atalho-icon-wrapper {
+                    width: 42px;
+                    height: 42px;
+                }
+
+                .card-atalho {
+                    width: 75px;
+                    padding: 12px;
+                }
+
+                .card-atalho img {
+                    width: 28px;
+                    height: 28px;
+                }
             }
         </style>
     `;
