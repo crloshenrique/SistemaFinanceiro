@@ -1162,9 +1162,74 @@
             color: #1a1d23;
             font-size: 1.8rem;
         }
+
+        /* ===== MENU MOBILE ===== */
+.btn-menu-mobile {
+    display: none;
+}
+
+@media (max-width: 768px) {
+
+    .btn-menu-mobile {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        width: 42px;
+        height: 42px;
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        z-index: 200;
+        cursor: pointer;
+    }
+
+    .btn-menu-mobile img {
+        width: 22px;
+        height: 22px;
+    }
+
+    .sidebar {
+        width: 240px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar::after {
+        display: none;
+    }
+
+    .sidebar:hover {
+        width: 240px;
+    }
+
+    .sidebar.menu-aberto {
+        transform: translateX(0);
+    }
+
+    .sidebar .profile-name,
+    .sidebar .links-name {
+        opacity: 1;
+    }
+
+    .content,
+    .content-dashboard {
+        margin-left: 0;
+    }
+}
+
     </style>
 </head>
 <body>
+
+    <button id="btn-menu-mobile" class="btn-menu-mobile" onclick="toggleMenuMobile(event)">
+        <img src="imagens/hamburguer.png" alt="Menu">
+    </button>
 
     <aside class="sidebar">
         <div class="header-profile">

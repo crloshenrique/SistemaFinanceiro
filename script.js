@@ -288,6 +288,21 @@ atualizarMenuAtivo();
 const sidebar = document.querySelector('.sidebar');
 sidebar.addEventListener('mouseleave', fecharTodosSubmenus);
 
+
+function toggleMenuMobile(event) {
+    event.stopPropagation();
+    sidebar.classList.toggle('menu-aberto');
+}
+
+document.addEventListener('click', (event) => {
+    const btnMenu = document.getElementById('btn-menu-mobile');
+    if (sidebar.classList.contains('menu-aberto') &&
+        !sidebar.contains(event.target) &&
+        !btnMenu.contains(event.target)) {
+        sidebar.classList.remove('menu-aberto');
+    }
+});
+
 function mostrarNotificacao(mensagem, tipo) {
     const toast = document.createElement('div');
     toast.className = `toast-notification ${tipo === 'sucesso' ? 'toast-success' : 'toast-error'}`;
