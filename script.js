@@ -2594,11 +2594,14 @@ domingosUltimasSemanas.forEach(dom => {
     };
 
     const circuloGanhos = criarCirculoDash(250, 105, percPrincipal, "Ganhos do mês", ganhosAtuaisVisual, `Meta: R$${metaValor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 22, '30px', '15px', '12px');
+        const isMobileDash = window.innerWidth <= 768;
     const circulosOrigemDash = dadosOrigem.map(item => {
         const perc = totalValorOrigens > 0 ? Math.round((item.valor / totalValorOrigens) * 100) : 0;
         const corOrigem = coresOrigem[item.origem] || '#6366f1';
-        return `<div class="mini-grafico-lateral">${criarCirculoDash(180, 75, perc, item.origem, item.valor, `${item.quantidade} entregas`, 16, '20px', '14px', '14px', corOrigem)}</div>`;    }).join('');
-
+        const tamanhoMini = isMobileDash ? 90 : 180;
+        const raioMini = isMobileDash ? 37 : 75;
+        const strokeMini = isMobileDash ? 8 : 16;
+        return `<div class="mini-grafico-lateral">${criarCirculoDash(tamanhoMini, raioMini, perc, item.origem, item.valor, `${item.quantidade} entregas`, strokeMini, isMobileDash ? '13px' : '20px', isMobileDash ? '10px' : '14px', isMobileDash ? '10px' : '14px', corOrigem)}</div>`;    }).join('');
     // --- RENDERIZAÇÃO FINAL ---
     mainContent.innerHTML = `
         <div id="dashboard-page" style="width: 100%;">
@@ -2916,7 +2919,7 @@ function renderizarHome() {
                 Sistema Financeiro
             </h1>
             <h3 class="home-subtitulo">
-                Navegue pelo menu lateral ou utilize os atalhos abaixo: Version 0.3
+                Navegue pelo menu lateral ou utilize os atalhos abaixo: Version 0.4
             </h3>
 
             <!-- Container dos Botões -->
