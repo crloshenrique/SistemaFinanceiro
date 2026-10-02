@@ -1875,37 +1875,6 @@ async function renderizarFinancas() {
 }
 
 
-async function buscarGanhosTotaisDoMes(mes, ano) {
-    const mesNum = parseInt(mes) - 1; // converte "04" → 3 (0-11)
-    const anoNum = parseInt(ano);
-
-    const ultimoDia = new Date(anoNum, mesNum + 1, 0).getDate();
-    const mesFormatado = String(mesNum + 1).padStart(2, '0');
-    
-    const dataInicio = `${anoNum}-${mesFormatado}-01`;
-    const dataFim = `${anoNum}-${mesFormatado}-${ultimoDia}T23:59:59`;
-    const dataReferenciaView = `${anoNum}-${mesFormatado}-01`;
-
-    const { data: dataEntregas } = await _supabase
-        .from('resumo_entregas_mensais')
-        .select('total_valor')
-        .eq('mes_referencia', dataReferenciaView);
-
-    const { data: dataServicos } = await _supabase
-        .from('servicos')
-        .select('valor, gasto')
-        .gte('data', dataInicio)
-        .lte('data', dataFim);
-
-    const totalEntregas = dataEntregas?.reduce((acc, item) => acc + (item.total_valor || 0), 0) || 0;
-    
-    const totalServicos = dataServicos?.reduce((acc, item) => {
-        return acc + ((item.valor || 0) - (item.gasto || 0));
-    }, 0) || 0;
-
-    return totalEntregas + totalServicos;
-}
-
 async function atualizarGraficoFinancas() {
     const areaGrafico = document.getElementById('container-dinamico-grafico');
     const mes = document.getElementById('filtro-mes-financas').value;
