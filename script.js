@@ -2075,7 +2075,6 @@ async function atualizarGraficoFinancas() {
                 </div>
                 <div style="display: flex; align-items: stretch; width: 100%; max-width: 585px; height: 280px; padding: 30px 20px 20px 12px; background: transparent; box-sizing: border-box; border-radius: 12px; border: 1px solid #6366f1;">
                     <div id="grafico-y-axis-financas" style="display: flex; flex-direction: column; justify-content: space-between; padding-right: 10px; padding-bottom: 28px; color: #64748b; font-size: 11px; text-align: right; border-right: 2px solid #e2e8f0; font-weight: 600; flex-shrink: 0; white-space: nowrap;">
-                        <span>4000</span>
                         <span>3000</span>
                         <span>2000</span>
                         <span>1000</span>
@@ -2084,7 +2083,6 @@ async function atualizarGraficoFinancas() {
                     <div style="position: relative; flex: 1; display: flex; flex-direction: column;">
                         <div id="grafico-visual-financas" style="position: relative; flex: 1; overflow: visible;">
                             <div style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; z-index: 1;">
-                                <div style="width: 100%; height: 1px; background-color: #e2e8f0;"></div>
                                 <div style="width: 100%; height: 1px; background-color: #e2e8f0;"></div>
                                 <div style="width: 100%; height: 1px; background-color: #e2e8f0;"></div>
                                 <div style="width: 100%; height: 1px; background-color: #e2e8f0;"></div>
@@ -2121,7 +2119,7 @@ async function renderizarGraficoTrimestralFinancas() {
 
     if (!barsContainer || !labelsContainer || !chartVisual) return;
 
-    const META_MAXIMA = 4000;
+    const META_MAXIMA = 3000;
 
     const mesesParaBuscar = [];
     for (let i = 2; i >= 0; i--) {
