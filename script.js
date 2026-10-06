@@ -1804,7 +1804,7 @@ function configurarTooltipCalendario(dadosPorDia) {
 }
 
 // Variável global para fácil alteração
-let metaDoMes = 3000;
+let metaDoMes = 2500;
 
 async function renderizarFinancas() {
     const mainContent = document.getElementById('main-content');
@@ -2599,7 +2599,6 @@ domingosUltimasSemanas.forEach(dom => {
                     </div>
                     <div style="display: flex; align-items: stretch; width: 100%; max-width: 585px; height: 280px; padding: 30px 20px 20px 12px; background: transparent; box-sizing: border-box; border-radius: 12px; border: 1px solid #6366f1;">
                         <div id="grafico-y-axis" style="display: flex; flex-direction: column; justify-content: space-between; padding-right: 10px; padding-bottom: 28px; color: #64748b; font-size: 11px; text-align: right; border-right: 2px solid #e2e8f0; font-weight: 600; flex-shrink: 0; white-space: nowrap;">
-                            <span>200</span>
                             <span>150</span>
                             <span>100</span>
                             <span>50</span>
@@ -2608,7 +2607,6 @@ domingosUltimasSemanas.forEach(dom => {
                         <div style="position: relative; flex: 1; display: flex; flex-direction: column;">
                             <div id="grafico-visual" style="position: relative; flex: 1; overflow: visible;">
                                 <div style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; z-index: 1;">
-                                    <div style="width: 100%; height: 1px; background-color: #e2e8f0;"></div>
                                     <div style="width: 100%; height: 1px; background-color: #e2e8f0;"></div>
                                     <div style="width: 100%; height: 1px; background-color: #e2e8f0;"></div>
                                     <div style="width: 100%; height: 1px; background-color: #e2e8f0;"></div>
@@ -2701,7 +2699,7 @@ function renderizarGraficoSemanal(dadosOrdenados) {
 
     if (!barsContainer || !labelsContainer || !chartVisual) return;
 
-    const META_MAXIMA = 200;
+    const META_MAXIMA = 150;
     const diasSemanaNomes = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
     barsContainer.innerHTML = '';
