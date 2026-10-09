@@ -729,6 +729,55 @@
         .edit-row td:first-child { border-left: 1px solid #f1f5f9; border-radius: 8px 0 0 8px; }
         .edit-row td:last-child { border-right: 1px solid #f1f5f9; border-radius: 0 8px 8px 0; }
 
+        .edit-row.carteira-faturamento td { color: #1d4ed8; font-weight: 500; }
+        .edit-row.carteira-repasse td     { color: #15803d; font-weight: 500; }
+        .edit-row.carteira-taxa td        { color: #b91c1c; font-weight: 500; }
+
+        .carteira-tabela { table-layout: fixed; }
+
+        .carteira-header {
+            overflow-y: hidden;
+            scrollbar-gutter: stable;
+            scrollbar-width: thin;
+            padding-right: 4px;
+        }
+
+        /* Cards de saldo da Carteira */
+        .card-saldo-carteira {
+            width: 300px;
+            aspect-ratio: 1.586 / 1; /* proporção de cartão de crédito */
+            border-radius: 12px;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card-saldo-carteira:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+        }
+
+.custom-select:disabled {
+    opacity: 1;                          /* tira o efeito "apagado" */
+    color: #94a3b8;                      /* texto cinza */
+    -webkit-text-fill-color: #94a3b8;    /* garante o cinza no Safari/Chrome mobile */
+    background-color: white;             /* mantém o fundo igual aos outros campos */
+    background-image: none;              /* remove a setinha */
+    cursor: default;                     /* sem a "mãozinha" de clique */
+}
+        .carteira-scroll {
+            overflow-y: auto;
+            scrollbar-gutter: stable;
+            scrollbar-width: thin;
+            scrollbar-color: #ffffff transparent; /* roxo do site, trilho transparente */
+            padding-right: 4px; /* afasta a barra dos registros */
+        }
+
         /* Nova estrutura de linhas para o formulário */
         .form-row {
             display: flex;
@@ -1276,6 +1325,12 @@
             <a href="#" class="menu-item" onclick="navegar('servicos')">
                 <img src="imagens/menu/servicos.png" class="menu-icon" alt="ícone">
                 <span class="links-name">Serviços</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" class="menu-item" onclick="navegar('carteira')">
+                <img src="imagens/menu/carteira.png" class="menu-icon" alt="ícone">
+                <span class="links-name">Carteira</span>
             </a>
         </li>
         <li>
