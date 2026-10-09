@@ -39,7 +39,7 @@ function navegar(pagina) {
             <div class="selection-container">
                 <h2 class="selection-title">${titulos[pagina]}</h2>
                 <div class="options-group">
-                    ${['entrega', 'serviço', 'conta'].map(tipo => `
+                    ${['entrega', 'serviço', 'conta', 'registro'].map(tipo => `
                         <div class="option-item">
                             <input type="radio" id="${tipo}" name="tipo-controle" value="${tipo}" 
                                    onclick="gerenciarCliqueRadio(this)">
@@ -108,6 +108,12 @@ function validarEProsseguir() {
             if (acao === 'adicionar') montarFormularioConta();
             else if (acao === 'editar') carregarListaEdicaoContas(); // Chamar a nova função aqui
             else if (acao === 'apagar') carregarListaApagarContas();
+        }
+        else if (selecionado.value === 'registro') {
+            if (acao === 'adicionar') montarFormularioCarteira();
+            else if (acao === 'editar') carregarListaEdicaoRegistro();
+            else if (acao === 'apagar') carregarListaApagarRegistro();
+            // editar e apagar: ficam para depois
         }
         // -------------------------------------
     }
@@ -2965,7 +2971,7 @@ function montarFormularioCarteira(origemSelecionada = '') {
     mainContent.className = 'content'; // volta ao layout centralizado
     mainContent.innerHTML = `
         <div class="selection-container">
-            <h2 class="selection-title">Carteira</h2>
+            <h2 class="selection-title">Adicionar registro</h2>
             <form id="form-carteira" class="form-container">
 
                 <div class="form-row">
@@ -3010,6 +3016,7 @@ function montarFormularioCarteira(origemSelecionada = '') {
 }
 
 async function renderizarCarteira() {
+    const meuIdNavegacao = navegacaoAtualId;
     const mainContent = document.getElementById('main-content');
     mainContent.innerHTML = `
         <div class="loader-container">
@@ -3017,22 +3024,28 @@ async function renderizarCarteira() {
         </div>
     `;
 
-    // Saldo a receber por origem: Faturamento - Repasse - Taxa
-    const { data: todos, error } = await _supabase
-        .from('carteira')
-        .select('tipo, valor, origem');
+    const [resSaldos, resRegistros] = await Promise.all([
+        _supabase.from('carteira').select('tipo, valor, origem'),
+        _supabase.from('carteira').select('*').order('id', { ascending: false }).limit(20)
+    ]);
 
-    if (error) {
+    if (meuIdNavegacao !== navegacaoAtualId) return;
+
+    if (resSaldos.error || resRegistros.error) {
         mostrarNotificacao("Erro ao carregar dados", "erro");
-        console.error(error);
+        console.error(resSaldos.error || resRegistros.error);
         return;
     }
 
+    const todos = resSaldos.data;
+    const registros = resRegistros.data;
+
+    // Saldo a receber por origem: Faturamento - Repasse - Taxa
     const saldos = { 'Agilize': 0, 'Aiqfome': 0, 'Bee': 0 };
     todos.forEach(r => {
         if (!(r.origem in saldos)) return;
         const v = Number(r.valor) || 0;
-        saldos[r.origem] += (r.tipo === 'Faturamento') ? v : -v; // Repasse e Taxa abatem o saldo
+        saldos[r.origem] += (r.tipo === 'Faturamento') ? v : -v;
     });
 
     const formatarSaldo = (v) => {
@@ -3040,11 +3053,10 @@ async function renderizarCarteira() {
         return (n < 0 ? '-' : '') + 'R$' + Math.abs(n).toFixed(2).replace('.', ',');
     };
 
-    // Mesmas cores das origens usadas no dashboard
     const coresOrigem = {
         'Agilize': { bg: '#833ff6', texto: '#ffffff' },
         'Aiqfome': { bg: '#03a097', texto: '#ffffff' },
-        'Bee':     { bg: '#ffcc00', texto: '#1f2937' } // amarelo pede texto escuro para dar contraste
+        'Bee':     { bg: '#ffcc00', texto: '#1f2937' }
     };
 
     const iconeCarteira = (cor) => `
@@ -3054,10 +3066,11 @@ async function renderizarCarteira() {
         </svg>
     `;
 
+    // Cards de saldo: SEM onclick (só o efeito de hover do CSS)
     const cardsSaldo = Object.keys(saldos).map(origem => {
         const c = coresOrigem[origem];
         return `
-            <div class="card-saldo-carteira" onclick="renderizarRegistrosCarteira('${origem}')" style="background: ${c.bg}; color: ${c.texto};">
+            <div class="card-saldo-carteira" style="background: ${c.bg}; color: ${c.texto};">
                 ${iconeCarteira(c.texto)}
                 <div style="text-align: right;">
                     <div style="font-size: 24px; font-weight: 700; line-height: 1.1;">${formatarSaldo(saldos[origem])}</div>
@@ -3067,8 +3080,130 @@ async function renderizarCarteira() {
         `;
     }).join('');
 
-    mainContent.className = 'content-dashboard'; // começa no topo, igual ao dashboard
+    // Cards de registros (menores, com ícone do tipo)
+    const iconesTipo = {
+        'Faturamento': 'imagens/faturamento.png',
+        'Repasse':     'imagens/repasse.png',
+        'Taxa':        'imagens/taxa.png'
+    };
+
+const formatarDataCard = (dataStr) => {
+    const meses = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+    const [, mes, dia] = dataStr.split('T')[0].split('-');
+    return `${dia} de ${meses[parseInt(mes) - 1]}`;
+};
+
+    const cardsRegistros = registros.length === 0
+        ? '<p style="color: #64748b; font-size: 15px;">Nenhum registro ainda.</p>'
+        : registros.map(r => {
+            const c = coresOrigem[r.origem] || { bg: '#64748b', texto: '#ffffff' };
+            // Ícone branco nos fundos escuros e escuro no amarelo da Bee
+            const filtroIcone = c.texto === '#ffffff' ? 'brightness(0) invert(1)' : 'brightness(0)';
+            const valor = 'R$' + Number(r.valor).toFixed(2).replace('.', ',');
+            return `
+<div class="card-registro-carteira" style="background: ${c.bg}; color: ${c.texto};">
+    <img src="${iconesTipo[r.tipo] || ''}" alt="${r.tipo}" style="width: 30px; height: 30px; object-fit: contain; flex-shrink: 0; opacity: 0.85; filter: ${filtroIcone};">
+    <div style="text-align: right;">
+        <div style="font-size: 11px; opacity: 0.9; margin-bottom: 3px;">${r.tipo}</div>
+        <div style="font-size: 17px; font-weight: 700; line-height: 1.1;">${valor}</div>
+        <div style="font-size: 11px; opacity: 0.9; margin-top: 3px;">${formatarDataCard(r.data)}</div>
+    </div>
+</div>
+            `;
+        }).join('');
+
+    mainContent.className = 'content-dashboard';
     mainContent.innerHTML = `
+        <style>
+            .content-dashboard {
+                min-width: 0;
+                max-width: 100vw;
+                overflow-x: hidden;
+            }
+
+            .card-saldo-carteira { cursor: default; }
+
+            .registros-wrapper {
+                position: relative;
+                min-width: 0;
+                margin-right: 40px;
+            }
+            .registros-scroll {
+                display: flex;
+                flex-direction: row;
+                gap: 12px;
+                overflow-x: auto;
+                padding: 6px 0 14px 0;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+                scroll-behavior: smooth;
+            }
+            .registros-scroll::-webkit-scrollbar { display: none; }
+
+            .registros-scroll {
+                --corte-esq: 0px;
+                --corte-dir: 0px;
+                -webkit-mask-image: linear-gradient(to right,
+                    transparent var(--corte-esq),
+                    #000 var(--corte-esq),
+                    #000 calc(100% - var(--corte-dir)),
+                    transparent calc(100% - var(--corte-dir)));
+                mask-image: linear-gradient(to right,
+                    transparent var(--corte-esq),
+                    #000 var(--corte-esq),
+                    #000 calc(100% - var(--corte-dir)),
+                    transparent calc(100% - var(--corte-dir)));
+            }
+            .registros-scroll.corta-esq { --corte-esq: 40px; }
+            .registros-scroll.corta-dir { --corte-dir: 40px; }
+            .registros-seta {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                margin-top: -4px; /* compensa o padding de baixo do scroll */
+                width: 40px;
+                height: 40px;
+                padding: 0;
+                border: none;
+                background: transparent;
+                cursor: pointer;
+                z-index: 5;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: opacity 0.2s, transform 0.2s;
+            }
+            .registros-seta img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                pointer-events: none;
+            }
+            .registros-seta:hover { transform: translateY(-50%) scale(1.12); }
+            .registros-seta.esquerda { left: 0px; }
+            .registros-seta.direita  { right: 0px; }
+            .registros-seta.oculta {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            .card-registro-carteira {
+                flex: 0 0 auto;
+                width: 170px;
+                height: 88px;
+                box-sizing: border-box;
+                border-radius: 10px;
+                padding: 0 16px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+
+        </style>
+
         <div style="width: 100%; box-sizing: border-box; padding-top: 20px; padding-left: 20px;">
             <div style="margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -3076,101 +3211,55 @@ async function renderizarCarteira() {
                     <h3 style="font-size: 16px; font-weight: 600; color: #475569; margin: 0;">Saldos a receber</h3>
                 </div>
             </div>
-            <div style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: flex-start; gap: 16px; width: 100%;">                ${cardsSaldo}
+            <div style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: flex-start; gap: 16px; width: 100%;">
+                ${cardsSaldo}
+            </div>
+
+            <div style="margin-top: 40px; margin-bottom: 14px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 4px; height: 20px; background-color: #6366f1; border-radius: 2px;"></div>
+                    <h3 style="font-size: 16px; font-weight: 600; color: #475569; margin: 0;">Registros</h3>
+                </div>
+            </div>
+            <div class="registros-wrapper">
+                <button type="button" id="seta-esquerda" class="registros-seta esquerda oculta" aria-label="Anterior">
+                    <img src="imagens/setaesquerda.png" alt="">
+                </button>
+                <div id="registros-scroll" class="registros-scroll">
+                    ${cardsRegistros}
+                </div>
+                <button type="button" id="seta-direita" class="registros-seta direita" aria-label="Próximo">
+                    <img src="imagens/setadireita.png" alt="">
+                </button>
             </div>
         </div>
     `;
-}
 
-async function renderizarRegistrosCarteira(origem) {
-    const mainContent = document.getElementById('main-content');
-    mainContent.className = 'content'; // volta ao layout centralizado
-    mainContent.innerHTML = `
-        <div class="loader-container">
-            <div class="spinner"></div>
-        </div>
-    `;
+    // Setas de navegação
+    const scrollReg = document.getElementById('registros-scroll');
+    const setaEsq = document.getElementById('seta-esquerda');
+    const setaDir = document.getElementById('seta-direita');
+    if (scrollReg && setaEsq && setaDir) {
+const atualizarSetas = () => {
+    const max = scrollReg.scrollWidth - scrollReg.clientWidth;
+    const esqAtiva = scrollReg.scrollLeft > 2;
+    const dirAtiva = max > 2 && scrollReg.scrollLeft < max - 2;
 
-    const { data: registros, error } = await _supabase
-        .from('carteira')
-        .select('*')
-        .eq('origem', origem) // mostra só os registros do card clicado (remova esta linha para mostrar todos)
-        .order('id', { ascending: false })
-        .limit(10);
+    setaEsq.classList.toggle('oculta', !esqAtiva);
+    setaDir.classList.toggle('oculta', !dirAtiva);
 
-    if (error) {
-        mostrarNotificacao("Erro ao carregar dados", "erro");
-        console.error(error);
-        return;
+    // Corta os cards que ficam embaixo da seta, só quando ela está ativa
+    scrollReg.classList.toggle('corta-esq', esqAtiva);
+    scrollReg.classList.toggle('corta-dir', dirAtiva);
+};
+        const passo = () => 182 * 2; // 2 cards por clique
+
+        setaDir.addEventListener('click', () => scrollReg.scrollBy({ left: passo() }));
+        setaEsq.addEventListener('click', () => scrollReg.scrollBy({ left: -passo() }));
+        scrollReg.addEventListener('scroll', atualizarSetas);
+        window.addEventListener('resize', atualizarSetas);
+        atualizarSetas();
     }
-
-    const classes = {
-        'Faturamento': 'carteira-faturamento',
-        'Repasse': 'carteira-repasse',
-        'Taxa': 'carteira-taxa'
-    };
-
-    const colunas = `
-        <colgroup>
-            <col style="width: 28%">
-            <col style="width: 24%">
-            <col style="width: 28%">
-            <col style="width: 20%">
-        </colgroup>
-    `;
-
-    mainContent.innerHTML = `
-        <div class="selection-container" style="width: 600px; max-width: 100%;">
-            <h2 class="selection-title">Últimos registros</h2>
-
-            <div class="carteira-header">
-                <table class="edit-table carteira-tabela" style="margin-top: -8px;">
-                    ${colunas}
-                    <thead>
-                        <tr>
-                            <th>Tipo</th>
-                            <th>Valor</th>
-                            <th>Origem</th>
-                            <th>Data</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-
-            <div id="carteira-scroll" class="carteira-scroll">
-                <table class="edit-table carteira-tabela" style="margin-top: -8px;">
-                    ${colunas}
-                    <tbody>
-                        ${registros.length === 0 ? `
-                            <tr class="edit-row carteira-row">
-                                <td colspan="4" style="text-align: center;">Nenhum registro ainda</td>
-                            </tr>
-                        ` : registros.map(item => `
-                            <tr class="edit-row carteira-row ${classes[item.tipo] || ''}">
-                                <td>${item.tipo}</td>
-                                <td>R$${item.valor.toFixed(2).replace('.', ',')}</td>
-                                <td>${item.origem}</td>
-                                <td>${new Date(item.data).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-
-            <button type="button" id="btn-adicionar-carteira" class="btn-salvar" style="width: 100%;" onclick="montarFormularioCarteira('${origem}')">Adicionar</button>
-        </div>
-    `;
-
-    const scrollBox = document.getElementById('carteira-scroll');
-    const linhas = scrollBox.querySelectorAll('tbody tr');
-    if (linhas.length > 5) {
-        const altura = linhas[5].getBoundingClientRect().top - scrollBox.getBoundingClientRect().top;
-        scrollBox.style.maxHeight = altura + 'px';
-    }
-
-    // Botão com a mesma largura do cabeçalho da tabela (desconta a barra de rolagem)
-    const tabelaHeader = document.querySelector('.carteira-header .carteira-tabela');
-    document.getElementById('btn-adicionar-carteira').style.width = tabelaHeader.getBoundingClientRect().width + 'px';
 }
 
 async function salvarCarteira() {
@@ -3209,11 +3298,257 @@ async function salvarCarteira() {
     if (error) {
         mostrarNotificacao("Erro ao conectar com o banco!", "erro");
         console.error(error);
-    } else {
-        mostrarNotificacao("Registro adicionado!", "sucesso");
-        setTimeout(renderizarCarteira, 500);
+} else {
+    mostrarNotificacao("Registro adicionado!", "sucesso");
+    setTimeout(() => {
+        const form = document.getElementById('form-carteira');
+        if (form) form.reset();
+        btn.disabled = false;
+        btn.textContent = 'Salvar';
+    }, 500);
+    return;
+}
+btn.disabled = false;
+btn.textContent = 'Salvar';
+}
+
+async function carregarListaEdicaoRegistro() {
+    const mainContent = document.getElementById('main-content');
+    mainContent.innerHTML = `
+        <div class="loader-container">
+            <div class="spinner"></div>
+        </div>
+    `;
+
+    const { data: registros, error } = await _supabase
+        .from('carteira')
+        .select('*')
+        .order('id', { ascending: false })
+        .limit(5);
+
+    if (error) {
+        mostrarNotificacao("Erro ao carregar dados", "erro");
+        console.error(error);
         return;
     }
-    btn.disabled = false;
-    btn.textContent = 'Salvar';
+
+    mainContent.innerHTML = `
+        <div class="selection-container" style="min-width: 600px;">
+            <h2 class="selection-title">Selecione o registro para editar</h2>
+            <table class="edit-table">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Valor</th>
+                        <th>Origem</th>
+                        <th>Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${registros.length === 0 ? `
+                        <tr class="edit-row">
+                            <td colspan="4" style="text-align: center;">Nenhum registro ainda</td>
+                        </tr>
+                    ` : registros.map(item => `
+                        <tr class="edit-row" onclick="abrirEdicaoRegistro(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                            <td>${item.tipo}</td>
+                            <td>R$${Number(item.valor).toFixed(2).replace('.', ',')}</td>
+                            <td>${item.origem}</td>
+                            <td>${new Date(item.data).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+function abrirEdicaoRegistro(item) {
+    const mainContent = document.getElementById('main-content');
+    const dataFormatada = item.data.split('T')[0];
+
+    mainContent.innerHTML = `
+        <div class="selection-container">
+            <h2 class="selection-title">Editar registro</h2>
+            <form id="form-editar-registro" class="form-container">
+                <input type="hidden" id="edit-registro-id" value="${item.id}">
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Valor</label>
+                        <div class="valor-input-wrapper">
+                            <span class="valor-prefix">R$</span>
+                            <input type="text" id="valor-carteira" value="${Number(item.valor).toFixed(2).replace('.', ',')}" class="custom-input input-focus-indigo">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Data</label>
+                        <input type="date" id="data-carteira" value="${dataFormatada}" class="custom-input input-focus-indigo">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Tipo</label>
+                        <select id="tipo-carteira" class="custom-select input-focus-indigo">
+                            <option value="Faturamento" ${item.tipo === 'Faturamento' ? 'selected' : ''}>Faturamento</option>
+                            <option value="Repasse" ${item.tipo === 'Repasse' ? 'selected' : ''}>Repasse</option>
+                            <option value="Taxa" ${item.tipo === 'Taxa' ? 'selected' : ''}>Taxa</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Origem</label>
+                        <select id="origem-carteira" class="custom-select input-focus-indigo">
+                            <option value="Agilize" ${item.origem === 'Agilize' ? 'selected' : ''}>Agilize</option>
+                            <option value="Aiqfome" ${item.origem === 'Aiqfome' ? 'selected' : ''}>Aiqfome</option>
+                            <option value="Bee" ${item.origem === 'Bee' ? 'selected' : ''}>Bee</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-salvar" onclick="atualizarRegistro()">Salvar</button>
+            </form>
+        </div>
+    `;
+}
+
+async function atualizarRegistro() {
+    const meuIdNavegacao = navegacaoAtualId;
+
+    const id = document.getElementById('edit-registro-id').value;
+    const valorRaw = document.getElementById('valor-carteira').value.trim();
+    const dataRef = document.getElementById('data-carteira').value;
+    const tipo = document.getElementById('tipo-carteira').value;
+    const origem = document.getElementById('origem-carteira').value;
+
+    if (!valorRaw || !dataRef || !tipo || !origem) {
+        mostrarNotificacao("Preencha todos os campos!", "erro");
+        return;
+    }
+
+    if (!/^\d+([,.]\d+)?$/.test(valorRaw)) {
+        mostrarNotificacao("Insira valores válidos!", "erro");
+        return;
+    }
+
+    const { error } = await _supabase
+        .from('carteira')
+        .update({
+            valor: parseFloat(valorRaw.replace(',', '.')),
+            data: dataRef,
+            tipo: tipo,
+            origem: origem
+        })
+        .eq('id', id);
+
+    if (error) {
+        mostrarNotificacao("Erro ao atualizar no banco!", "erro");
+        console.error(error);
+    } else {
+        mostrarNotificacao("Registro atualizado!", "sucesso");
+        setTimeout(() => {
+            if (meuIdNavegacao !== navegacaoAtualId) return;
+            carregarListaEdicaoRegistro();
+        }, 800);
+    }
+}
+
+async function carregarListaApagarRegistro() {
+    const mainContent = document.getElementById('main-content');
+    mainContent.innerHTML = `
+        <div class="loader-container">
+            <div class="spinner"></div>
+        </div>
+    `;
+
+    const { data: registros, error } = await _supabase
+        .from('carteira')
+        .select('*')
+        .order('id', { ascending: false })
+        .limit(5);
+
+    if (error) {
+        mostrarNotificacao("Erro ao carregar dados", "erro");
+        console.error(error);
+        return;
+    }
+
+    mainContent.innerHTML = `
+        <div class="selection-container" style="min-width: 600px;">
+            <h2 class="selection-title">Clique na lixeira para apagar</h2>
+            <table class="edit-table">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Valor</th>
+                        <th>Origem</th>
+                        <th>Data</th>
+                        <th style="width: 50px;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${registros.length === 0 ? `
+                        <tr class="edit-row">
+                            <td colspan="5" style="text-align: center;">Nenhum registro ainda</td>
+                        </tr>
+                    ` : registros.map(item => `
+                        <tr class="edit-row">
+                            <td>${item.tipo}</td>
+                            <td>R$${Number(item.valor).toFixed(2).replace('.', ',')}</td>
+                            <td>${item.origem}</td>
+                            <td>${new Date(item.data).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
+                            <td style="text-align: center; padding: 0 10px;">
+                                <img src="imagens/lixeira.png"
+                                     alt="Apagar"
+                                     style="max-height: 22px; width: auto; vertical-align: middle; cursor: pointer; transition: filter 0.2s;"
+                                     onclick="confirmarEApagarRegistro(this, ${item.id})">
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+async function confirmarEApagarRegistro(elemento, id) {
+    // Segundo clique: confirmação real
+    if (elemento.dataset.confirmar === "true") {
+        clearTimeout(window.lixeiraTimer);
+        const meuIdNavegacao = navegacaoAtualId;
+
+        const { data, error } = await _supabase
+            .from('carteira')
+            .delete()
+            .eq('id', id)
+            .select();
+
+        if (error) {
+            mostrarNotificacao("Erro ao apagar registro!", "erro");
+            console.error(error);
+            resetarLixeira(elemento);
+        } else if (!data || data.length === 0) {
+            mostrarNotificacao("Nada foi apagado! Verifique as permissões.", "erro");
+            resetarLixeira(elemento);
+        } else {
+            mostrarNotificacao("Registro apagado!", "sucesso");
+            if (meuIdNavegacao !== navegacaoAtualId) return;
+            carregarListaApagarRegistro();
+        }
+    } else {
+        // Primeiro clique: prepara para confirmar (fica vermelho e balança)
+        document.querySelectorAll('.edit-table img').forEach(img => resetarLixeira(img));
+
+        elemento.dataset.confirmar = "true";
+        elemento.style.filter = "invert(15%) sepia(95%) saturate(6932%) hue-rotate(358deg) brightness(95%) contrast(112%)";
+        elemento.classList.add('lixeira-aviso');
+
+        setTimeout(() => {
+            elemento.classList.remove('lixeira-aviso');
+        }, 500);
+
+        window.lixeiraTimer = setTimeout(() => {
+            resetarLixeira(elemento);
+        }, 3000);
+    }
 }
